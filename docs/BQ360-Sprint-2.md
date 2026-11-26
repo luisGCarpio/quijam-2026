@@ -48,11 +48,50 @@ Estructurar el programa integral y construir una primera demostración de cómo 
 4. **Economía inteligente:** recomendaciones de negocios locales según servicios, disponibilidad, preferencias y criterios transparentes de distribución; sin obligación de compra para acceder a orientación o recarga gratuita cuando se acuerde.
 5. **Inclusión:** información accesible, idiomas, orientación presencial y contenido estático disponible sin conexión. No prometer información en vivo sin conectividad ni accesibilidad física no verificada.
 6. **BQ Nodes:** estaciones modulares de orientación, señalización, QR, hidratación, reciclaje y, según viabilidad, Wi-Fi, energía solar, carga y sensores. Prototipo conceptual inicialmente.
-7. **Control Center:** mapa operativo, indicadores, simulación, alertas, trazabilidad y capacidad de intervención humana.
+7. **BQ Control:** mapa operativo, indicadores, simulación, alertas, trazabilidad y capacidad de intervención humana.
 
-### 2.3 Capacidades digitales
+### 2.3 Módulos funcionales del sistema
 
-BQ Move (movilidad), BQ Explore (turismo y cultura), BQ Safe (alertas y orientación), BQ Market (comercio), BQ Green (ambiente), BQ Health (hidratación y servicios de salud), BQ Jobs (empleo y capacitación), BQ Control (monitoreo), BQ AI (asistencia y análisis futuro) y **BQ Live (inteligencia colectiva urbana)**. Son capacidades transversales, no diez aplicaciones independientes. BQ Green puede designar tanto el programa como su capacidad digital; revisar nomenclatura sin perder la dimensión ambiental.
+BQ360 integra diez módulos funcionales dentro de una misma plataforma. Cada módulo responde a necesidades específicas y comparte datos y capacidades tecnológicas con los demás.
+
+| Módulo | Funcionalidad principal |
+|---|---|
+| **BQ Move** | Movilidad inteligente, balanceo de flujos, predicción de congestión y rutas accesibles. |
+| **BQ Explore** | Turismo, gastronomía, cultura y recomendaciones personalizadas de destinos. |
+| **BQ Safe** | Alertas, riesgos, emergencias y orientación hacia puntos seguros conforme a protocolos competentes. |
+| **BQ Market** | Digitalización y promoción del comercio local, disponibilidad comercial y distribución de visitantes. |
+| **BQ Green** | Gestión ambiental, residuos, reciclaje, monitoreo climático y prácticas sostenibles. |
+| **BQ Health** | Orientación hacia servicios de salud, hidratación, descanso y prevención climática; no sustituye atención médica. |
+| **BQ Jobs** | Empleo, capacitación, voluntariado y oportunidades laborales. |
+| **BQ Live** | Reportes georreferenciados, confirmaciones ciudadanas y actualización colaborativa del estado territorial. |
+| **BQ Control** | Monitoreo, simulación, indicadores, alertas y supervisión humana para operadores y autoridades. |
+| **BQ AI** | Asistente inteligente multilingüe, orientación personalizada y explicación de recomendaciones. |
+
+BQ Live recibe y valida información colaborativa; BQ Safe comunica riesgos y orientación de seguridad. BQ Control integra el centro de control, sin crear otro módulo independiente. BQ Green designa tanto el programa estratégico ambiental como su módulo funcional; el contexto distingue ambos niveles.
+
+#### Componentes tecnológicos transversales
+
+| Componente | Función | Módulos relacionados principalmente |
+|---|---|---|
+| **BQ Digital Twin** | Representación territorial 2D, 2.5D y 3D; evolución hacia un gemelo digital calibrado. | Move, Explore, Control |
+| **BQ Flow Engine** | Optimización matemática de flujos y recursos con restricciones verificables. | Move, Market, Control |
+| **BQ Predict** | Simulación temporal y proyección de demanda. | Move, Safe, Green, Control |
+| **BQ Adaptive Routing** | Elegibilidad y rutas adaptadas a capacidad, accesibilidad y condiciones ambientales. | Move, Explore, Health |
+| **BQ Nodes** | Infraestructura física-digital para orientación, inclusión y servicios urbanos. | Transversal a los diez módulos |
+
+BQ Adaptive Routing se integra funcionalmente en BQ Move; BQ Nodes no constituye una aplicación independiente.
+
+#### Articulación con las dimensiones estratégicas
+
+| Programa estratégico | Módulos relacionados principalmente |
+|---|---|
+| BQ Territory | BQ Move, BQ Safe, BQ Explore |
+| BQ Green | BQ Green, BQ Health, BQ Move |
+| BQ Intelligence | BQ Control, BQ AI, BQ Live, BQ Move |
+| BQ Community | BQ Live, BQ Safe, BQ Health, BQ Explore, BQ Jobs |
+| BQ Economy | BQ Market, BQ Jobs, BQ Explore |
+
+La relación es transversal y no exclusiva. Los cinco programas definen objetivos urbanos; los diez módulos ofrecen servicios; los cinco componentes transversales proporcionan capacidades e infraestructura compartidas.
 
 ### 2.4 Arquitectura conceptual
 
@@ -69,7 +108,7 @@ flowchart TD
  I --> E
  G --> J[BQ360 App y orientación presencial]
  G --> K[BQ360 Business]
- E --> L[BQ360 Control Center]
+ E --> L[BQ Control: monitoreo y simulación]
  J --> M[BQ Nodes y voluntarios]
  J --> D
  K --> D
@@ -90,9 +129,26 @@ El mapa, los estados de disponibilidad y el motor comparten una fuente lógica d
 
 Se recomienda la segunda alternativa para el MVP, conservando la primera como respaldo y la tercera como evolución. No reducir la visión estratégica por restricciones del prototipo.
 
+### Priorización funcional del prototipo
+
+| Módulo | Prioridad | Alcance inicial |
+|---|---|---|
+| BQ Move | Alta | Mapa, rutas y balanceo inteligente. |
+| BQ Control | Alta | Panel y simulación comparativa. |
+| BQ Live | Alta | Reporte básico, pausa preventiva y recálculo. |
+| BQ Market | Alta | Disponibilidad comercial y derivación de visitantes. |
+| BQ Safe | Alta | Alertas y restricciones de rutas. |
+| BQ Green | Media | Condiciones ambientales simuladas. |
+| BQ Health | Media | Puntos de hidratación y orientación a servicios. |
+| BQ Explore | Media | Destinos turísticos y culturales. |
+| BQ AI | Media | Asistente básico si los recursos lo permiten; respaldo textual local. |
+| BQ Jobs | Evolutiva | Representación conceptual de empleo y voluntariado. |
+
+La prioridad alta corresponde al circuito demostrable; las demás funcionalidades pueden representarse mediante datos o vistas conceptuales. BQ Nodes mantiene su demostración de orientación presencial versionada como parte del circuito prioritario. No se exige desarrollar diez aplicaciones completas durante el sprint.
+
 ### 3.2 Interfaces propuestas
 
-- **BQ360 Control Center:** interfaz principal de demostración; mapa, ocupación, demanda, alertas, simulación y comparación de escenarios.
+- **BQ Control:** interfaz principal de demostración; mapa, ocupación, demanda, alertas, simulación y comparación de escenarios.
 - **BQ360 App:** consulta de orientación, rutas, servicios, cultura, accesibilidad y reportes BQ Live.
 - **BQ360 Business:** actualización de disponibilidad, servicios y cierre de recepción; puede representarse como panel dentro de la misma web.
 - **BQ Nodes:** ficha, maqueta o modelo conceptual que reproduce orientación vigente y muestra su conexión con el sistema.
@@ -101,20 +157,19 @@ No es obligatorio construir tres aplicaciones separadas. Una sola web con vistas
 
 ### 3.3 Arquitectura funcional y motor inteligente
 
-El simulador territorial es la pieza central del MVP. Se separan tres responsabilidades:
+El simulador territorial es la pieza central del MVP. La arquitectura distingue los componentes compartidos de los módulos que los consumen:
 
-| Componente | Responsabilidad |
+| Componente transversal | Responsabilidad |
 |---|---|
 | BQ Digital Twin | Representación territorial interactiva; evolución hacia un gemelo digital calibrado. |
 | BQ Predict | Reloj, demanda por intervalos, llegadas, salidas y proyección de ocupación. |
 | BQ Flow Engine | Balanceo determinista de demanda con restricciones compartidas. |
 | BQ Adaptive Routing | Elegibilidad y recomendaciones según necesidades de acceso, servicios y condiciones ambientales. |
-| BQ Live | Reportes ciudadanos, pausa preventiva y revisión de incidencias. |
-| BQ Market | Disponibilidad comercial y rotación transparente entre opciones equivalentes. |
-| BQ Control Center | Comparación de políticas, supervisión, alertas y explicación de resultados. |
 | BQ Nodes | Publicación presencial versionada y confirmación de retirada. |
 
-El simulador estima estados futuros; el balanceador calcula alternativas; la capa de publicación aplica reglas de supervisión, vigencia y retirada. Los nombres identifican capacidades de una misma plataforma, no productos independientes.
+BQ Move consume las recomendaciones; BQ Live registra reportes y activa revisión; BQ Safe comunica alertas; BQ Market aporta disponibilidad comercial; BQ Control compara políticas y supervisa excepciones. BQ Explore, BQ Green, BQ Health, BQ Jobs y BQ AI consumen o aportan información según su alcance funcional.
+
+El simulador estima estados futuros; el balanceador calcula alternativas; la capa de publicación aplica reglas de supervisión, vigencia y retirada. Los módulos y componentes pertenecen a una misma plataforma, no a productos independientes.
 
 #### Modelo territorial y temporal
 
@@ -387,7 +442,7 @@ Validar hipótesis con residentes, operadores y comercios mediante entrevistas b
 
 El sprint comprende el programa estratégico articulado, el diseño técnico, la primera versión demostrable del simulador territorial, el modelo operativo, los indicadores y la hoja de ruta. La evidencia incluye escenarios reproducibles, matriz de pruebas, registro de cambios, ficha BQ Node y guion de demostración.
 
-La implementación se organiza por dependencias y prioridades, sin fijar una duración ni un stack no sustentados. El alcance funcional se concentra en el circuito completo de simulación, recomendación, incidencia, recálculo, intervención y comunicación. La expansión a sensores, predicción calibrada y equipamiento físico pertenece a la evolución progresiva del programa.
+La implementación se organiza por dependencias y prioridades, con el stack tecnológico propuesto en este documento y sin fijar una duración no confirmada. El alcance funcional se concentra en el circuito completo de simulación, recomendación, incidencia, recálculo, intervención y comunicación. La expansión a sensores, predicción calibrada y equipamiento físico pertenece a la evolución progresiva del programa.
 
 **Principio rector:** adaptar el prototipo para demostrar la esencia de BQ360, no reducir la esencia de BQ360 al prototipo.
 
