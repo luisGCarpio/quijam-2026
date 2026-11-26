@@ -1,17 +1,20 @@
 ---
 tags:
   - quijam-2026
+  - bq360
   - barranquilla-2034
   - mundial-2034
   - propuesta
   - smart-city
 ---
 
-# Quilla3D 2034 — Propuesta para Barranquilla Sede del Mundial 2034
+# BQ360 — Propuesta para Barranquilla Sede del Mundial 2034
 
-> **Nota base de lluvia de ideas:** [[Barranquilla 2034 sede mundial.]]
+![Logo BQ360](BQ360-logo.jpeg)
+
+> **Nota base de lluvia de ideas:** [[Barranquilla 2034 sede mundial.]] · **Documento maestro:** [[BQ360]] · **Sprint 1:** [[Sprint 1 - BQ360]]
 >
-> **Opciones de nombre:** **Quilla3D 2034** *(principal)* · *Barranquilla Viva 3D* · *QuillaFlow 2034* · *Atlas Quilla 2034*
+> **Nombre oficial:** **BQ360**
 >
 > **Idea fuerza:** *"Toda la ciudad en juego: un mapa 3D inteligente que descentraliza el Mundial 2034 por toda Barranquilla, garantiza inclusión y salud en tiempo real, protege la economía azul y verde, y deja un gemelo digital permanente para la ciudad."*
 
@@ -35,7 +38,7 @@ Las plataformas de navegación convencionales (como Google Maps o Waze) agravan 
 
 La propuesta adopta un enfoque de **ecosistema multi-actor con inclusión universal**, diseñado tanto para quienes visitan la ciudad como para quienes la habitan antes, durante y después de 2034.
 
-| Categoría | Segmento de Población | Necesidad Principal | Cómo los atiende Quilla3D 2034 |
+| Categoría | Segmento de Población | Necesidad Principal | Cómo los atiende BQ360 |
 | :--- | :--- | :--- | :--- |
 | **Usuarios Directos** | **Turistas e hinchas** (nacionales e internacionales) | Orientarse en el estadio y la ciudad de forma segura, rápida, en su idioma y sin quedar atrapados en aglomeraciones. | Mapa 3D interactivo multi-idioma (estadio + ciudad), rutas alternativas balanceadas, puestos de salud/hidratación y descubrimiento de zonas menos saturadas. |
 | **Usuarios Directos** | **Periodistas y prensa acreditada** | Puntualidad estricta entre hoteles, zonas mixtas, estadio y puntos de cobertura sin quedar bloqueados por el tráfico masivo. | Perfiles y corredores prioritarios diferenciados con tiempos reales de traslado y rutas alternas dedicadas. |
@@ -49,7 +52,7 @@ La propuesta adopta un enfoque de **ecosistema multi-actor con inclusión univer
 ## 3. Objetivos
 
 ### Objetivo General
-Diseñar e implementar **Quilla3D 2034**, una plataforma de mapeo 3D interactivo a escala Ciudad-Estadio para Barranquilla que descentralice y balancee dinámicamente los flujos de visitantes, prensa y ciudadanos, garantice acceso inclusivo a salud, movilidad sostenible y economía azul/verde, y evolucione tras el Mundial hacia un gemelo digital ciudadano permanente.
+Diseñar e implementar **BQ360**, una plataforma de mapeo 3D interactivo a escala Ciudad-Estadio para Barranquilla que descentralice y balancee dinámicamente los flujos de visitantes, prensa y ciudadanos, garantice acceso inclusivo a salud, movilidad sostenible y economía azul/verde, y evolucione tras el Mundial hacia un gemelo digital ciudadano permanente.
 
 ### Objetivos Específicos
 1. **Descentralizar los flujos urbanos y del estadio:** Implementar un motor de balanceo dinámico por capacidad/aforo en tiempo real combinado con incentivos locales para evitar la concentración masiva en una sola vía o zona y activar comercial y turísticamente toda la ciudad.
@@ -62,7 +65,7 @@ Diseñar e implementar **Quilla3D 2034**, una plataforma de mapeo 3D interactivo
 
 ## 4. Planteamiento de la Solución
 
-**Quilla3D 2034** es una plataforma interactiva de **mapeo 3D a escala Ciudad-Estadio** (Estadio Metropolitano Roberto Meléndez + toda la ciudad de Barranquilla) que convierte a toda la ciudad en un sistema coordinado de recepción, movilidad, salud, sostenibilidad y legado.
+**BQ360** es una plataforma interactiva de **mapeo 3D a escala Ciudad-Estadio** (Estadio Metropolitano Roberto Meléndez + toda la ciudad de Barranquilla) que convierte a toda la ciudad en un sistema coordinado de recepción, movilidad, salud, sostenibilidad y legado.
 
 ```mermaid
 flowchart LR
@@ -113,7 +116,7 @@ Al finalizar el Mundial 2034, la plataforma no se desecha; queda instalada como 
 ## 5. Propuesta de Valor
 
 ### Declaración Central
-> **Quilla3D 2034** transforma a toda Barranquilla en un ecosistema inteligente e inclusivo que, mediante un mapa 3D con balanceo dinámico de flujos, evita el colapso urbano durante el Mundial 2034, reparte el turismo y el beneficio económico por toda la ciudad cuidando su entorno azul y verde, y deja como legado permanente un gemelo digital cívico, deportivo y educativo.
+> **BQ360** transforma a toda Barranquilla en un ecosistema inteligente e inclusivo que, mediante un mapa 3D con balanceo dinámico de flujos, evita el colapso urbano durante el Mundial 2034, reparte el turismo y el beneficio económico por toda la ciudad cuidando su entorno azul y verde, y deja como legado permanente un gemelo digital cívico, deportivo y educativo.
 
 ### Valor Entregado por Actor
 * **Para turistas, hinchas y prensa:** Experiencia sin estrés, segura, en su idioma y accesible; menos filas y trancones, acceso inmediato a salud e hidratación, y descubrimiento auténtico de toda Barranquilla (no solo el estadio).
@@ -122,7 +125,7 @@ Al finalizar el Mundial 2034, la plataforma no se desecha; queda instalada como 
 
 ### ¿Qué la diferencia de soluciones convencionales?
 
-| Criterio | Apps de mapas tradicionales (Google Maps / Waze) | Apps típicas de un Mundial | **Quilla3D 2034** |
+| Criterio | Apps de mapas tradicionales (Google Maps / Waze) | Apps típicas de un Mundial | **BQ360** |
 | :--- | :--- | :--- | :--- |
 | **Gestión de rutas alternas** | Envía a todos por la misma alterna ("efecto rebaño"). | Solo muestra mapas estáticos de sedes. | **Balanceo dinámico por capacidad en tiempo real** para no saturar un solo lugar. |
 | **Uso de la ciudad** | Se limita a ir del punto A al B. | Concentra a todos en Estadio y Fan Fest. | **Activa y distribuye el flujo en toda Barranquilla** con incentivos hacia comercios locales. |
@@ -135,7 +138,7 @@ Al finalizar el Mundial 2034, la plataforma no se desecha; queda instalada como 
 ## 6. Guion Rápido de Pitch (60 segundos) y Defensa ante Jurado
 
 ### Pitch en 60 segundos
-> *"El mayor riesgo de llevar el Mundial 2034 a Barranquilla no es solo recibir a miles de turistas y periodistas: es concentrarlos a todos en el mismo lugar al mismo tiempo, colapsando vías, puestos de salud y dejando por fuera a la mayoría de la ciudad. Por eso creamos **Quilla3D 2034**, un mapa 3D interactivo del Estadio Metropolitano y de toda Barranquilla que usa balanceo dinámico por aforo en tiempo real para asignar rutas alternativas distintas —sin mandar a todo el mundo por el mismo corredor— y que motiva a los visitantes a descubrir barrios, comercios locales y corredores de economía azul y verde como el Gran Malecón y la Ciénaga de Mallorquín sin saturarlos. Incluye puestos de salud balanceados, alertas de calor y arroyos, rutas 100% accesibles, modo offline y tótems físicos 3D para que nadie quede excluido si falla el internet. Y lo más importante: cuando termine el Mundial, Quilla3D no se apaga; queda como el gemelo digital ciudadano de Barranquilla para el Carnaval, la activación de escenarios deportivos y la educación en colegios y universidades."*
+> *"El mayor riesgo de llevar el Mundial 2034 a Barranquilla no es solo recibir a miles de turistas y periodistas: es concentrarlos a todos en el mismo lugar al mismo tiempo, colapsando vías, puestos de salud y dejando por fuera a la mayoría de la ciudad. Por eso creamos **BQ360**, un mapa 3D interactivo del Estadio Metropolitano y de toda Barranquilla que usa balanceo dinámico por aforo en tiempo real para asignar rutas alternativas distintas —sin mandar a todo el mundo por el mismo corredor— y que motiva a los visitantes a descubrir barrios, comercios locales y corredores de economía azul y verde como el Gran Malecón y la Ciénaga de Mallorquín sin saturarlos. Incluye puestos de salud balanceados, alertas de calor y arroyos, rutas 100% accesibles, modo offline y tótems físicos 3D para que nadie quede excluido si falla el internet. Y lo más importante: cuando termine el Mundial, BQ360 no se apaga; queda como el gemelo digital ciudadano de Barranquilla para el Carnaval, la activación de escenarios deportivos y la educación en colegios y universidades."*
 
 ### Respuestas rápidas a preguntas difíciles del jurado
 * **¿Qué pasa si se cae el internet cerca del Estadio Metropolitano?**
