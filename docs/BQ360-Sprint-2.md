@@ -444,6 +444,18 @@ El sprint comprende el programa estratégico articulado, el diseño técnico, la
 
 La implementación se organiza por dependencias y prioridades, con el stack tecnológico propuesto en este documento y sin fijar una duración no confirmada. El alcance funcional se concentra en el circuito completo de simulación, recomendación, incidencia, recálculo, intervención y comunicación. La expansión a sensores, predicción calibrada y equipamiento físico pertenece a la evolución progresiva del programa.
 
+## 9. Distribución operativa del equipo
+
+| Integrante | Responsabilidad | Entregable visible |
+|---|---|---|
+| 1. Movilidad | Rutas, corredores, flujo, capacidad y escenarios. | Motor BQ Move y simulación. |
+| 2. Territorio | Mapa, capas, accesibilidad y lugares. | Mapa y representación territorial. |
+| 3. Participación | Reportes, alertas, estados y moderación operativa. | BQ Live y BQ Safe. |
+| 4. Economía y nodos | Comercios, servicios, disponibilidad y orientación presencial. | BQ Market y prototipo conceptual de BQ Nodes. |
+| 5. Integración | APIs, control, trazabilidad, coordinación y presentación técnica. | BQ Control y demo integrada. |
+
+La distribución puede adaptarse al número real de integrantes. Ninguna persona debe desarrollar pantallas desconectadas del flujo principal: escenario de demanda → recomendación → incidencia → recálculo → comunicación → legado.
+
 **Principio rector:** adaptar el prototipo para demostrar la esencia de BQ360, no reducir la esencia de BQ360 al prototipo.
 
 > El mundo viene. Barranquilla evoluciona.

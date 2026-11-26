@@ -75,11 +75,11 @@ docs/               Programa, investigación y datos demo
 
 Google Maps embebido permite mostrar lugares y rutas básicas. Para geolocalización avanzada, marcadores personalizados y rutas calculadas por API se necesitará una clave de Google Maps JavaScript API.
 
-## Documentación (`docs/`)
+## Documentación de los sprints
 
-* [Programa integral y requisitos QUIJAM (`BQ360_Barranquilla_2034.md`)](./docs/BQ360_Barranquilla_2034.md) — Programa BQ360 en 5 dimensiones (`BQ Territory`, `BQ Green`, `BQ Intelligence`, `BQ Community`, `BQ Economy`), `BQ Nodes`, hoja de ruta 2026–2035+, sprints oficiales y entregables Demo Day.
-* [Dossier de investigación Sprint 1 (`BQ360_Sprint1_Dossier.md`)](./docs/BQ360_Sprint1_Dossier.md) — Diagnóstico con cifras oficiales verificadas, cinco dimensiones, arquitectura inicial, datos disponibles vs. simulados y plan de validación en campo.
-* [Cierre Sprint 1 (`Sprint 1 - BQ360.md`)](./docs/Sprint%201%20-%20BQ360.md) — Estructura de 6 bloques para el entregable/póster y checklist operativo del Sprint 1.
-* [Documento maestro (`BQ360.md`)](./docs/BQ360.md) — Contexto territorial, rúbrica QUIJAM, visión de módulos, caso demostrativo y registro de decisiones.
-* [Propuesta base (`Propuesta Barranquilla 2034 - BQ360.md`)](./docs/Propuesta%20Barranquilla%202034%20-%20BQ360.md) — Identificación del problema, población multi-actor, objetivos, solución 3D, propuesta de valor y pitch.
-* [Notas iniciales (`Barranquilla 2034 sede mundial..md`)](./docs/Barranquilla%202034%20sede%20mundial..md) — Lluvia de ideas original del equipo.
+| Documento | Sprint | Contenido |
+|---|---|---|
+| [Sprint 1 — Comprender y diseñar](./docs/BQ360-Sprint-1.md) | Póster y diagnóstico | Problema, actores, cinco dimensiones, arquitectura inicial y plan de validación. |
+| [Sprint 2 — Diseñar y construir](./docs/BQ360-Sprint-2.md) | Programa y prototipo | Componentes, motor, interfaces, escenario, backlog y distribución del equipo. |
+| [Sprint 3 — Validar y consolidar](./docs/BQ360-Sprint-3.md) | Solución completa | Aplicación móvil, mapa, módulos demo, pruebas, presentación y legado. |
+| [Datos de demostración](./docs/BQ360_Datos_Demo.md) | Soporte | Perfil, lugares, agenda, comunidades y alertas ficticias. |
