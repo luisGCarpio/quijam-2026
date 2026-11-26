@@ -114,6 +114,18 @@ Antes de abrir las ramas individuales, **Persona 5** sube a `main`:
 
 *(Una vez fusionado el Bloque 0 en `main`, las 5 personas crean su rama desde ese commit y trabajan en paralelo sin bloquearse.)*
 
+
+
+
+
+
+
+
+
+
+
+
+
 ### Persona 1 · Movilidad y Motor (`sprint2/i1-motor`)
 * Implementar `routing.ts`, `allocation.ts` y `simulation.ts` en `BQ360/lib/engine/`.
 * Reglas obligatorias:
