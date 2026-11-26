@@ -1,0 +1,283 @@
+/* Scoped styles for BQ360 Persona 4 (BQ Market, Public Notices, BQ Nodes, BQ AI, BQ Jobs) */
+
+.bq-outreach {
+  --bq-accent: #123f78;
+  --bq-accent-soft: #e8f0fb;
+  --bq-surface: #ffffff;
+  --bq-bg: #f7f7f2;
+  --bq-border: #cbd5e1;
+  --bq-text: #0f172a;
+  --bq-muted: #475569;
+  --bq-ok-bg: #dcfce7;
+  --bq-ok-text: #14532d;
+  --bq-warn-bg: #fef3c7;
+  --bq-warn-text: #78350f;
+  --bq-alert-bg: #fee2e2;
+  --bq-alert-text: #7f1d1d;
+  color: var(--bq-text);
+  font-family: inherit;
+}
+
+/* Accessibility utilities */
+.bq-outreach .bq-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.bq-outreach :is(button, a, input, select, textarea, summary, [tabindex]):focus-visible,
+dialog.bq-modal :is(button, a, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid #123f78;
+  outline-offset: 2px;
+}
+
+.bq-outreach header.sticky :is(button, a):focus-visible {
+  outline: 3px solid #f7b928;
+  outline-offset: 2px;
+}
+
+/* Minimum 48x48 accessible touch targets and zoom-safe input font sizes */
+.bq-outreach :is(button, [role="tab"], [role="button"], select, .bq-touch-target),
+dialog.bq-modal :is(button, [role="button"], select, .bq-touch-target) {
+  min-block-size: 48px;
+  min-inline-size: 48px;
+}
+
+.bq-outreach :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea),
+dialog.bq-modal :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  font-size: max(1rem, 1em);
+  min-block-size: 48px;
+  border: 1.5px solid #64748b;
+}
+
+.bq-outreach :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea)[aria-invalid="true"],
+dialog.bq-modal :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea)[aria-invalid="true"] {
+  border-color: #b91c1c;
+}
+
+/* Single-row accessible tablist */
+.bq-outreach [role="tablist"] {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0.25rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: inline proximity;
+  border-block-end: 1px solid var(--bq-border);
+  scrollbar-width: thin;
+}
+
+.bq-outreach [role="tab"] {
+  position: relative;
+  flex: none;
+  scroll-snap-align: start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.75rem 1rem;
+  border: 0;
+  background: transparent;
+  color: var(--bq-muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.bq-outreach [role="tab"]:hover {
+  color: var(--bq-accent);
+  background: var(--bq-accent-soft);
+}
+
+.bq-outreach [role="tab"][aria-selected="true"] {
+  color: var(--bq-accent);
+}
+
+/* Draw selected indicator via border on pseudo-element so forced-colors preserves it */
+.bq-outreach [role="tab"][aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  border-block-end: 3px solid currentColor;
+}
+
+/* Tabpanel must have zero padding/border/margin/background so hidden="until-found" leaves no strip */
+.bq-outreach [role="tabpanel"] {
+  padding: 0;
+  border: 0;
+  margin: 0;
+  background: transparent;
+}
+
+.bq-outreach .bq-tabpanel-inner {
+  margin-block-start: 0.875rem;
+  padding: 1.25rem;
+  border: 1px solid var(--bq-border);
+  border-radius: 0.875rem;
+  background: var(--bq-surface);
+}
+
+/* Cards, badges, buttons */
+.bq-outreach .bq-card {
+  background: var(--bq-surface);
+  border: 1px solid var(--bq-border);
+  border-radius: 0.875rem;
+  padding: 1.25rem;
+}
+
+.bq-outreach .bq-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  border: 1px solid currentColor;
+}
+
+.bq-outreach .bq-badge-ok {
+  background: var(--bq-ok-bg);
+  color: var(--bq-ok-text);
+}
+
+.bq-outreach .bq-badge-warn {
+  background: var(--bq-warn-bg);
+  color: var(--bq-warn-text);
+}
+
+.bq-outreach .bq-badge-alert {
+  background: var(--bq-alert-bg);
+  color: var(--bq-alert-text);
+}
+
+.bq-outreach .bq-badge-info {
+  background: var(--bq-accent-soft);
+  color: var(--bq-accent);
+}
+
+.bq-outreach .bq-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: 0.625rem;
+  border: 1px solid var(--bq-border);
+  background: var(--bq-surface);
+  color: var(--bq-text);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bq-outreach .bq-btn-primary {
+  background: var(--bq-accent);
+  border-color: var(--bq-accent);
+  color: #ffffff;
+}
+
+.bq-outreach .bq-btn-danger {
+  background: #b91c1c;
+  border-color: #b91c1c;
+  color: #ffffff;
+}
+
+.bq-outreach .bq-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Native <dialog className="bq-modal"> scroll-lock and layout */
+dialog.bq-modal:modal {
+  overscroll-behavior: contain;
+}
+
+dialog.bq-modal::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background: rgb(15 23 42 / 0.55);
+}
+
+dialog.bq-modal[open] {
+  display: grid;
+  gap: 1rem;
+  width: min(36rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  margin: auto;
+  padding: 1.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.875rem;
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 24px 48px rgb(15 23 42 / 0.24);
+}
+
+/* Printable BQ Node sheet */
+.bq-outreach .bq-printable-sheet {
+  background: #ffffff;
+  border: 2px solid #0f172a;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+
+@media print {
+  @page {
+    margin: 12mm;
+  }
+
+  .no-print,
+  .bq-outreach .no-print,
+  .bq-outreach [role="tabpanel"][hidden],
+  dialog.bq-modal {
+    display: none !important;
+  }
+
+  .bq-outreach,
+  .bq-outreach.min-h-screen {
+    background: #ffffff !important;
+    color: #000000 !important;
+    min-height: auto !important;
+  }
+
+  .bq-outreach.min-h-screen > main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+  }
+
+  .bq-outreach.min-h-screen > main::before {
+    display: none !important;
+  }
+
+  .bq-outreach .bq-tabpanel-inner {
+    margin-block-start: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .bq-outreach .bq-printable-sheet {
+    border: 2px solid #000000 !important;
+    border-radius: 0 !important;
+    padding: 1rem !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .bq-outreach .bq-printable-sheet > section,
+  .bq-outreach .bq-printable-sheet > div {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
