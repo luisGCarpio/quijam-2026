@@ -81,5 +81,6 @@ Google Maps embebido permite mostrar lugares y rutas básicas. Para geolocalizac
 |---|---|---|
 | [Sprint 1 — Comprender y diseñar](./docs/BQ360-Sprint-1.md) | Póster y diagnóstico | Problema, actores, cinco dimensiones, arquitectura inicial y plan de validación. |
 | [Sprint 2 — Diseñar y construir](./docs/BQ360-Sprint-2.md) | Programa y prototipo | Componentes, motor, interfaces, escenario, backlog y distribución del equipo. |
+| [Plan MVP Barranquilla (5 personas)](./docs/BQ360-Plan-MVP-Barranquilla.md) | Ejecución Sprint 2–3 | División de carpetas, ramas y tareas para 5 integrantes sobre `BQ360/` (Next.js offline). |
 | [Sprint 3 — Validar y consolidar](./docs/BQ360-Sprint-3.md) | Solución completa | Aplicación móvil, mapa, módulos demo, pruebas, presentación y legado. |
 | [Datos de demostración](./docs/BQ360_Datos_Demo.md) | Soporte | Perfil, lugares, agenda, comunidades y alertas ficticias. |
