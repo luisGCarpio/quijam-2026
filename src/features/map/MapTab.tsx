@@ -1,83 +1,66 @@
 "use client";
 
-// Archivo exclusivo de Dev 2 — Stub inicial Fase 0
-import { MapPin, Layers, AlertTriangle, Navigation, X } from "lucide-react";
+import dynamic from "next/dynamic";
+import { useCallback, useState } from "react";
+import { AlertTriangle, MapPin, Plus } from "lucide-react";
 import { useBQ360 } from "@/context/BQ360Context";
-import { SCENARIOS } from "@/data/scenarios";
+import type { RouteResult } from "@/lib/routing";
+import LayerFilterChips from "./LayerFilterChips";
+import RouteComparisonCard from "./RouteComparisonCard";
+import ReportModal from "./ReportModal";
+
+const LeafletCanvas = dynamic(() => import("./LeafletCanvas"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[360px] animate-pulse bg-slate-200" aria-label="Loading map" />
+  ),
+});
 
 export default function MapTab() {
-  const { simulation, activeLayers, routeRequest, clearRoute, reports, lang, t } =
-    useBQ360();
+  const { t, simulation, reports, weather } = useBQ360();
+  const [reportOpen, setReportOpen] = useState(false);
+  const [routeResult, setRouteResult] = useState<RouteResult | null>(null);
+  const handleRouteResult = useCallback((result: RouteResult | null) => {
+    setRouteResult(result);
+  }, []);
 
-  const activeLayerCount = Object.values(activeLayers).filter(Boolean).length;
-  const totalLayers = Object.keys(activeLayers).length;
-  const scenarioMeta = SCENARIOS[simulation.scenarioId];
+  const rainActive =
+    simulation.scenarioId === "rain_arroyos" || weather.arroyoRisk === "critico";
 
   return (
-    <section className="flex flex-col gap-4 p-4" aria-label={t("map.stub.title")}>
-      <header className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex items-center gap-2 text-[#0B2545]">
-          <MapPin className="h-5 w-5 shrink-0" aria-hidden="true" />
-          <h2 className="text-base font-bold">{t("map.stub.title")}</h2>
-        </div>
-        <p className="mt-1 text-xs text-slate-600">{t("map.stub.subtitle")}</p>
-      </header>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl border border-slate-200 bg-white p-3">
-          <p className="text-xs font-medium text-slate-500">{t("map.stub.scenario")}</p>
-          <p className="mt-1 text-sm font-semibold text-[#0B2545]">
-            {scenarioMeta.label[lang]}
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-slate-200 bg-white p-3">
-          <p className="text-xs font-medium text-slate-500">{t("map.stub.mode")}</p>
-          <p className="mt-1 text-sm font-semibold text-[#0B2545]">
-            {t(`shell.mode.${simulation.mode}`)}
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-slate-200 bg-white p-3">
-          <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-            <Layers className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>{t("map.stub.layers")}</span>
-          </div>
-          <p className="mt-1 text-sm font-semibold text-[#15803D]">
-            {activeLayerCount} / {totalLayers}
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-slate-200 bg-white p-3">
-          <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-            <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>{t("map.stub.reports")}</span>
-          </div>
-          <p className="mt-1 text-sm font-semibold text-[#DC2626]">{reports.length}</p>
+    <section className="flex flex-col gap-3 p-3" aria-label={t("map.stub.title")}>
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="relative">
+          <LayerFilterChips />
+          <LeafletCanvas onRouteResult={handleRouteResult} />
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-4">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-            <Navigation className="h-4 w-4 text-[#0B2545]" aria-hidden="true" />
-            <span>{t("map.stub.route")}</span>
-          </div>
-          {routeRequest && (
-            <button
-              type="button"
-              onClick={clearRoute}
-              className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100"
-            >
-              <X className="h-3.5 w-3.5" aria-hidden="true" />
-              <span>{t("map.stub.clearRoute")}</span>
-            </button>
-          )}
+      {rainActive && (
+        <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-800">
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          {t("map.arroyoWarning")}
         </div>
-        <p className="mt-2 text-sm font-medium text-slate-900">
-          {routeRequest ? routeRequest.destination.label : t("map.stub.noRoute")}
-        </p>
+      )}
+
+      <RouteComparisonCard route={routeResult} />
+
+      <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
+        <span className="flex items-center gap-1.5">
+          <MapPin className="h-4 w-4 text-[#0B2545]" />
+          {t("map.liveReports")}: <strong className="text-[#DC2626]">{reports.length}</strong>
+        </span>
+        <button
+          type="button"
+          onClick={() => setReportOpen(true)}
+          className="inline-flex items-center gap-1 rounded-xl bg-[#DC2626] px-3 py-2 font-bold text-white shadow-md"
+        >
+          <Plus className="h-4 w-4" />
+          {t("map.reportButton")}
+        </button>
       </div>
+
+      <ReportModal open={reportOpen} onClose={() => setReportOpen(false)} />
     </section>
   );
 }
