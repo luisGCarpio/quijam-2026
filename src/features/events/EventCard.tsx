@@ -7,7 +7,6 @@ import {
   ArrowUpRight,
   CheckCircle2,
   Clock,
-  CloudSun,
   Flame,
   Landmark,
   MapPin,
@@ -24,7 +23,6 @@ type EventCardProps = {
   lang: EventsLang;
   copy: EventsCopy;
   attendance: number;
-  weatherLabel: string;
   accessibleRoute: boolean;
   onNavigate?: (destination: { lat: number; lng: number; label: string }) => void;
 };
@@ -87,7 +85,6 @@ export function EventCard({
   lang,
   copy,
   attendance,
-  weatherLabel,
   accessibleRoute,
   onNavigate,
 }: EventCardProps) {
@@ -218,15 +215,6 @@ export function EventCard({
           <span>
             {copy.schedule} · {event.schedule}
           </span>
-        </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-[var(--surface-muted)] px-2.5 py-1 leading-none text-bq-text">
-          <CloudSun
-            className="h-3 w-3 shrink-0 text-bq-navy"
-            strokeWidth={2}
-            absoluteStrokeWidth
-            aria-hidden="true"
-          />
-          <span>{weatherLabel}</span>
         </span>
         <span
           className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 leading-none ${

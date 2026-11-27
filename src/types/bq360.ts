@@ -1,3 +1,4 @@
+import type { Dispatch, SetStateAction } from "react";
 // Contratos TypeScript congelados — Fase 0 (BQ360)
 // No modificar sin coordinación en main (docs/PLAN_DESARROLLO.md §4.3)
 
@@ -148,10 +149,22 @@ export interface NotificationItem {
   read: boolean;
 }
 
+export interface ExploreSession {
+  query: string; category: string; onlyAccessible: boolean; localEconomy: boolean; view: "list" | "map";
+}
+
+export interface ReportDraft {
+  category: ReportCategory; severity: Severity; title: string; description: string;
+  point: LatLng | null; pointConfirmed: boolean; error: string; saving: boolean; published: boolean;
+}
+
 export interface BQ360ContextValue {
   // Navegación
   activeTab: TabId;
   setActiveTab: (tab: TabId) => void;
+  syncActiveTab: (tab: TabId) => void;
+  exploreSession: ExploreSession;
+  setExploreSession: Dispatch<SetStateAction<ExploreSession>>;
 
   // Transversales
   lang: Lang;
@@ -169,6 +182,7 @@ export interface BQ360ContextValue {
   // Ubicación de usuario (default: Plaza de la Paz / centro Barranquilla)
   userLocation: LatLng;
   setUserLocation: (coords: LatLng) => void;
+  locationConfirmed: boolean;
 
   // Core: Simulación & Realtime
   simulation: SimulationState;
@@ -193,6 +207,8 @@ export interface BQ360ContextValue {
 
   // Reportes ciudadanos & Notificaciones
   reports: CitizenReport[];
+  reportDraft: ReportDraft;
+  setReportDraft: Dispatch<SetStateAction<ReportDraft>>;
   submitReport: (
     report: Omit<CitizenReport, "id" | "created_at">
   ) => Promise<{ ok: boolean; error?: string }>;

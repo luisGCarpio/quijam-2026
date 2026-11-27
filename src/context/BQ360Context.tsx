@@ -15,6 +15,7 @@ import { ARROYO_ZONES } from "@/data/arroyos";
 import { CITY_EVENTS } from "@/data/events";
 import { SCENARIOS } from "@/data/scenarios";
 import { getTranslation } from "@/i18n";
+import { navigateTab } from "@/lib/tab-navigation";
 import { formatCop } from "@/lib/currency";
 import { speakAlert, stopSpeech } from "@/lib/speech";
 import {
@@ -43,12 +44,14 @@ import type {
   CitizenReport,
   CityEvent,
   Currency,
+  ExploreSession,
   Lang,
   LatLng,
   LayerCategory,
   NotificationItem,
   Poi,
   RouteRequest,
+  ReportDraft,
   SimulationState,
   TabId,
   WeatherState,
@@ -226,7 +229,11 @@ function mergeReportsById(
 }
 
 export function BQ360Provider({ children }: { children: ReactNode }) {
-  const [activeTab, setActiveTab] = useState<TabId>("map");
+  const [activeTab, syncActiveTab] = useState<TabId>("map");
+  const setActiveTab = useCallback((tab: TabId) => { navigateTab(tab); syncActiveTab(tab); }, []);
+  const [exploreSession, setExploreSession] = useState<ExploreSession>({ query: "", category: "todos", onlyAccessible: false, localEconomy: false, view: "list" });
+  const [reportDraft, setReportDraft] = useState<ReportDraft>({ category: "aglomeracion", severity: "media", title: "", description: "", point: null, pointConfirmed: false, error: "", saving: false, published: false });
+  const [locationConfirmed, setLocationConfirmed] = useState(false);
   const [lang, setLangState] = useState<Lang>("es");
   const [currency, setCurrencyState] = useState<Currency>("COP");
   const [baseWeather, setBaseWeather] = useState<WeatherState>(
@@ -560,6 +567,8 @@ export function BQ360Provider({ children }: { children: ReactNode }) {
   const setUserLocation = useCallback((coords: LatLng) => {
     userLocationRef.current = coords;
     setUserLocationState(coords);
+    setLocationConfirmed(true);
+    setRouteRequest((prev) => prev ? { ...prev, origin: { ...coords, label: CURRENT_LOCATION_LABEL[langRef.current] } } : prev);
   }, []);
 
   const setSyncEnabled = useCallback((nextSync: boolean) => {
@@ -646,7 +655,7 @@ export function BQ360Provider({ children }: { children: ReactNode }) {
       });
       setActiveTab("map");
     },
-    []
+    [setActiveTab]
   );
 
   const clearRoute = useCallback(() => {
@@ -678,42 +687,31 @@ export function BQ360Provider({ children }: { children: ReactNode }) {
     async (
       report: Omit<CitizenReport, "id" | "created_at">
     ): Promise<{ ok: boolean; error?: string }> => {
+      setReportDraft(prev => ({ ...prev, saving: true, error: "", published: false }));
+      const finish = (result: { ok: boolean; error?: string }) => {
+        setReportDraft(prev => result.ok ? { ...prev, title: "", description: "", category: "aglomeracion", severity: "media", pointConfirmed: false, saving: false, published: true } : { ...prev, saving: false, error: result.error ?? "" });
+        return result;
+      };
       const validation = validateCitizenReportInput(report);
       if (!validation.ok) {
-        return { ok: false, error: validation.error };
+        return finish({ ok: false, error: validation.error });
       }
 
       const { sanitized } = validation;
-      const shouldUseSupabase =
-        isSupabaseConfigured() &&
-        (typeof navigator === "undefined" || navigator.onLine !== false);
-
-      if (shouldUseSupabase) {
+      if (!isSupabaseConfigured() || (typeof navigator !== "undefined" && navigator.onLine === false)) {
+        return finish({ ok: false, error: getTranslation(langRef.current, "map.report.notPublished") });
+      }
+      try {
         const result = await insertCitizenReport(sanitized);
         if (result.ok && result.data) {
           commitReport(result.data);
-          return { ok: true };
+          return finish({ ok: true });
         }
-
-        console.warn(
-          "[BQ360] Failed to persist citizen_report, using local fallback:",
-          result.error
-        );
+        if (result.rejected) return finish({ ok: false, error: getTranslation(langRef.current, "map.report.rejected") });
+      } catch {
+        // A network failure may occur after the server received the report.
       }
-
-      const localFallbackReport: CitizenReport = {
-        id: createClientId("rpt"),
-        category: sanitized.category,
-        title: sanitized.title,
-        description: sanitized.description ?? null,
-        lat: sanitized.lat,
-        lng: sanitized.lng,
-        severity: sanitized.severity,
-        created_at: new Date().toISOString(),
-      };
-
-      commitReport(localFallbackReport);
-      return { ok: true };
+      return finish({ ok: false, error: getTranslation(langRef.current, "map.report.uncertain") });
     },
     [commitReport]
   );
@@ -747,6 +745,9 @@ export function BQ360Provider({ children }: { children: ReactNode }) {
     () => ({
       activeTab,
       setActiveTab,
+      syncActiveTab,
+      exploreSession,
+      setExploreSession,
       lang,
       setLang,
       t,
@@ -758,6 +759,7 @@ export function BQ360Provider({ children }: { children: ReactNode }) {
       updateAccessibility,
       userLocation,
       setUserLocation,
+      locationConfirmed,
       simulation,
       syncEnabled,
       setSyncEnabled,
@@ -774,6 +776,8 @@ export function BQ360Provider({ children }: { children: ReactNode }) {
       navigateToRoute,
       clearRoute,
       reports,
+      reportDraft,
+      setReportDraft,
       submitReport,
       notifications,
       activeToasts,
@@ -786,6 +790,9 @@ export function BQ360Provider({ children }: { children: ReactNode }) {
     }),
     [
       activeTab,
+      setActiveTab,
+      exploreSession,
+      locationConfirmed,
       lang,
       setLang,
       t,
@@ -812,6 +819,7 @@ export function BQ360Provider({ children }: { children: ReactNode }) {
       navigateToRoute,
       clearRoute,
       reports,
+      reportDraft,
       submitReport,
       notifications,
       activeToasts,

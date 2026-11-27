@@ -1,9 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { AlertTriangle, MapPin, Plus } from "lucide-react";
 import { useBQ360 } from "@/context/BQ360Context";
+import type { LatLng } from "@/types/bq360";
 import type { RouteResult } from "@/lib/routing";
 import LayerFilterChips from "./LayerFilterChips";
 import RouteComparisonCard from "./RouteComparisonCard";
@@ -20,13 +21,23 @@ const LeafletCanvas = dynamic(() => import("./LeafletCanvas"), {
 });
 
 export default function MapTab() {
-  const { t, simulation, reports, weather } = useBQ360();
-  const [reportOpen, setReportOpen] = useState(false);
-  const [routeResult, setRouteResult] = useState<RouteResult | null>(null);
+  const { t, simulation, reports, weather, routeRequest, locationConfirmed, reportDraft, setReportDraft } = useBQ360();
+  const mapRegionRef = useRef<HTMLDivElement>(null);
+  const routeCardRef = useRef<HTMLDivElement>(null);
+  const [pickMode, setPickMode] = useState<"origin" | "report" | null>(null);
+  const [reportPickReady, setReportPickReady] = useState(false);
+  const [mapPoint, setMapPoint] = useState<LatLng | null>(null);
+  const [originPoint, setOriginPoint] = useState<LatLng | null>(null);
+  const reportPoint = reportDraft.point;
+  const setReportPoint = (point: LatLng | null) => setReportDraft(prev => ({ ...prev, point, pointConfirmed: false }));
+  const [reportOpen, setReportOpen] = useState(() => reportDraft.saving || reportDraft.published || Boolean(reportDraft.error));
+  const [retry, setRetry] = useState(0);
+  const [routeResult, setRouteResult] = useState<{ request: typeof routeRequest; result: RouteResult | null; error: boolean; retry: number } | null>(null);
 
-  const handleRouteResult = useCallback((result: RouteResult | null) => {
-    setRouteResult(result);
-  }, []);
+  const handleRouteResult = useCallback((result: RouteResult | null, error = false) => {
+    setRouteResult({ request: routeRequest, result, error, retry });
+  }, [routeRequest, retry]);
+  const current = locationConfirmed && routeResult?.request === routeRequest && routeResult.retry === retry ? routeResult : null;
 
   const rainActive =
     simulation.scenarioId === "rain_arroyos" || weather.arroyoRisk === "critico";
@@ -36,11 +47,16 @@ export default function MapTab() {
       className="flex flex-col gap-3 p-3.5"
       aria-label={t("map.stub.title")}
     >
+      {pickMode && <div role="status" className="rounded-xl bg-bq-navy p-3 text-sm text-white">
+        <p>{pickMode === "report" && reportPickReady ? t("map.pointSelected") : t("map.pickInstructions")}</p>
+        {pickMode === "report" && reportPickReady && <div className="mt-2 flex flex-wrap gap-3"><button type="button" className="rounded bg-white px-3 py-2 font-bold text-bq-navy" onClick={() => { setReportDraft(prev => ({ ...prev, pointConfirmed: true })); setPickMode(null); setReportPickReady(false); setReportOpen(true); }}>{t("map.usePoint")}</button><button type="button" className="underline" onClick={() => setReportPickReady(false)}>{t("map.chooseAnother")}</button></div>}
+        <button type="button" className="mt-2 underline" onClick={() => { const wasReport = pickMode === "report"; setPickMode(null); setReportPickReady(false); if (wasReport) setReportOpen(true); }}>{t("map.cancelPick")}</button>
+      </div>}
       {/* Mapa real con chips de las 7 capas encima */}
-      <div className="bq-surface-card overflow-hidden rounded-[22px]">
+      <div ref={mapRegionRef} className="bq-surface-card overflow-hidden rounded-[22px]">
         <div className="relative">
           <LayerFilterChips />
-          <LeafletCanvas onRouteResult={handleRouteResult} />
+          <LeafletCanvas onRouteResult={handleRouteResult} retry={retry} picking={Boolean(pickMode)} selectedPoint={mapPoint} onPick={(point) => { setMapPoint(point); if (pickMode === "report") { setReportPoint(point); setReportPickReady(true); } else { setOriginPoint(point); setPickMode(null); requestAnimationFrame(() => routeCardRef.current?.scrollIntoView({ block: "center" })); } }} />
         </div>
       </div>
 
@@ -65,7 +81,7 @@ export default function MapTab() {
       )}
 
       {/* Comparador de Ruta Directa vs. Ruta Alternativa */}
-      <RouteComparisonCard route={routeResult} />
+      <div ref={routeCardRef}><RouteComparisonCard selectedPoint={originPoint} onChooseMap={() => { setOriginPoint(null); setPickMode("origin"); mapRegionRef.current?.scrollIntoView({ block: "center" }); }} route={current?.result ?? null} error={current?.error ?? false} onRetry={() => setRetry((value) => value + 1)} /></div>
 
       {/* Barra de Reportes Ciudadanos en Vivo + CTA Reportar */}
       <div className="bq-surface-card flex items-center justify-between gap-3 rounded-2xl p-3">
@@ -106,7 +122,7 @@ export default function MapTab() {
         </button>
       </div>
 
-      <ReportModal open={reportOpen} onClose={() => setReportOpen(false)} />
+      <ReportModal open={reportOpen} onClose={() => setReportOpen(false)} selectedPoint={reportPoint} onPointChange={setReportPoint} onChooseMap={() => { setReportOpen(false); setReportPickReady(false); setPickMode("report"); requestAnimationFrame(() => mapRegionRef.current?.scrollIntoView({ block: "center" })); }} />
     </section>
   );
 }

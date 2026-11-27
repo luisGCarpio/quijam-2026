@@ -1,0 +1,141 @@
+{
+  "fps": 30,
+  "totalFrames": 3903,
+  "totalDurationSec": 130.1,
+  "scenes": [
+    {
+      "id": "01-intro",
+      "type": "hero",
+      "kicker": "QUIJAM · BARRANQUILLA 2034",
+      "title": "BQ360: Ciudad Viva en Tiempo Real",
+      "subtitle": "Movilidad segura, alertas de arroyos, eventos masivos e inclusión en una sola aplicación.",
+      "accent": "#F3C922",
+      "badges": [
+        {
+          "label": "Rutas Seguras",
+          "color": "#268C44"
+        },
+        {
+          "label": "Alertas de Arroyos",
+          "color": "#D9323B"
+        },
+        {
+          "label": "Mundial 2034",
+          "color": "#F3C922"
+        },
+        {
+          "label": "Inclusión Total",
+          "color": "#6AB4E2"
+        }
+      ],
+      "narration": "Barranquilla se prepara para recibir al mundo en 2034. Cuando miles de personas se mueven entre estadios, el Gran Malecón y los corredores culturales, el clima, los arroyos y el aforo cambian minuto a minuto. Por eso nace BQ360: la aplicación que conecta movilidad inteligente, prevención climática, agenda de eventos y asistencia ciudadana en un solo lugar.",
+      "audioFile": "audio/01-intro.mp3",
+      "durationSec": 21.79,
+      "startFrame": 0,
+      "durationFrames": 681
+    },
+    {
+      "id": "02-topbar",
+      "type": "demo",
+      "kicker": "ACCESIBILIDAD E INCLUSIÓN GLOBAL",
+      "title": "Diseñada para Todos los Visitantes",
+      "accent": "#6AB4E2",
+      "bullets": [
+        "Cambio instantáneo entre 4 idiomas: Español, Inglés, Portugués y Francés.",
+        "Conversión automática de moneda en COP, USD, EUR y BRL.",
+        "Modo de Alto Contraste WCAG AAA y alertas de clima siempre visibles."
+      ],
+      "narration": "Desde la barra superior, BQ360 elimina barreras desde el primer segundo. Cualquier visitante puede cambiar la interfaz al instante entre español, inglés, portugués y francés, además de convertir precios a pesos colombianos, dólares, euros o reales. También integra un botón rápido de alto contraste con estándar de accesibilidad triple A, garantizando lectura clara bajo el sol del Caribe o para personas con baja visión.",
+      "audioFile": "audio/02-topbar.mp3",
+      "durationSec": 24.31,
+      "startFrame": 681,
+      "durationFrames": 751,
+      "clipFile": "clips/02-topbar.webm"
+    },
+    {
+      "id": "03-mapa-simulador",
+      "type": "demo",
+      "kicker": "MAPA INTELIGENTE Y SIMULADOR",
+      "title": "Prevención de Arroyos y Rutas Seguras",
+      "accent": "#D9323B",
+      "bullets": [
+        "Mapa interactivo con capas de movilidad, arroyos y puntos clave.",
+        "Simulador en vivo de lluvia fuerte, salida del Metropolitano y saturación.",
+        "Comparador de ruta directa frente a ruta alternativa segura y reportes ciudadanos."
+      ],
+      "narration": "El corazón de la aplicación es el mapa interactivo. Permite filtrar capas de movilidad y zonas de riesgo, y cuenta con un simulador de escenarios en tiempo real. Al activar lluvia fuerte y alerta de arroyos, toda la app responde de inmediato: la barra de clima pasa a alerta crítica en rojo coral, aparece el aviso preventivo y el comparador sugiere rutas alternativas seguras, complementado con reportes ciudadanos en vivo.",
+      "audioFile": "audio/03-mapa-simulador.mp3",
+      "durationSec": 22.92,
+      "startFrame": 1432,
+      "durationFrames": 709,
+      "clipFile": "clips/03-mapa-simulador.webm"
+    },
+    {
+      "id": "04-eventos",
+      "type": "demo",
+      "kicker": "RADAR DE EVENTOS 2034",
+      "title": "Aforo en Vivo y Accesos Alternos",
+      "accent": "#F3C922",
+      "bullets": [
+        "Monitoreo de ocupación en el Estadio Metropolitano, Gran Malecón y Vía 40.",
+        "Indicadores visuales claros para evitar aglomeraciones.",
+        "Recomendaciones dinámicas de acceso según el flujo de asistentes."
+      ],
+      "narration": "En la pestaña de Eventos, los usuarios consultan la agenda de Barranquilla 2034 con ocupación actualizada. Desde la salida masiva del Estadio Metropolitano hasta el Fan Fest en el Gran Malecón y el desfile cultural en la Vía 40, cada tarjeta muestra el nivel de aforo y orienta hacia accesos alternos para distribuir mejor el flujo de personas.",
+      "audioFile": "audio/04-eventos.mp3",
+      "durationSec": 18.55,
+      "startFrame": 2141,
+      "durationFrames": 578,
+      "clipFile": "clips/04-eventos.webm"
+    },
+    {
+      "id": "05-explorar-asistencia",
+      "type": "demo",
+      "kicker": "EXPLORAR CIUDAD Y ASISTENCIA",
+      "title": "Turismo Conectado y Respuesta Inmediata",
+      "accent": "#268C44",
+      "bullets": [
+        "Guía de puntos culturales, gastronómicos y turísticos con filtros por categoría.",
+        "Red de asistencia médica, emergencias y puntos de apoyo accesibles.",
+        "Navegación simple de cuatro pestañas pensada para uso en movimiento."
+      ],
+      "narration": "BQ360 también impulsa el turismo local en la sección Explorar, organizando sitios culturales, gastronomía y puntos icónicos por categoría para descubrir la ciudad sin perderse. Y en la pestaña de Asistencia, centraliza atención médica, líneas de emergencia, puntos seguros y herramientas de inclusión como texto grande, rutas accesibles y alertas por voz.",
+      "audioFile": "audio/05-explorar-asistencia.mp3",
+      "durationSec": 21.0,
+      "startFrame": 2719,
+      "durationFrames": 651,
+      "clipFile": "clips/05-explorar-asistencia.webm"
+    },
+    {
+      "id": "06-cierre",
+      "type": "outro",
+      "kicker": "IMPACTO QUIJAM · BARRANQUILLA 2034",
+      "title": "Una Ciudad Más Segura, Fluida e Inclusiva",
+      "subtitle": "BQ360 transforma datos urbanos en decisiones rápidas para ciudadanos y visitantes.",
+      "accent": "#268C44",
+      "badges": [
+        {
+          "label": "Preventiva",
+          "color": "#D9323B"
+        },
+        {
+          "label": "Multilingüe",
+          "color": "#6AB4E2"
+        },
+        {
+          "label": "Accesible AAA",
+          "color": "#F3C922"
+        },
+        {
+          "label": "Legado 2034",
+          "color": "#268C44"
+        }
+      ],
+      "narration": "Con una identidad visual clara, accesible y pensada para el ciudadano, BQ360 no solo resuelve los retos de los grandes eventos de 2034, sino que deja un legado digital permanente para toda Barranquilla. BQ360: información en vivo para vivir la ciudad con tranquilidad.",
+      "audioFile": "audio/06-cierre.mp3",
+      "durationSec": 16.85,
+      "startFrame": 3370,
+      "durationFrames": 533
+    }
+  ]
+}

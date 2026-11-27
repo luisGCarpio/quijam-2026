@@ -393,7 +393,7 @@ export async function fetchRecentReports(limit = 30): Promise<CitizenReport[]> {
 
 export async function insertCitizenReport(
   report: CitizenReportInput
-): Promise<{ ok: boolean; data?: CitizenReport; error?: string }> {
+): Promise<{ ok: boolean; data?: CitizenReport; error?: string; rejected?: boolean }> {
   const validation = validateCitizenReportInput(report);
   if (!validation.ok) {
     return { ok: false, error: validation.error };
@@ -407,7 +407,7 @@ export async function insertCitizenReport(
   const { sanitized } = validation;
 
   try {
-    const { data, error } = await client
+    const { data, error, status } = await client
       .from("citizen_reports")
       .insert({
         category: sanitized.category,
@@ -418,10 +418,11 @@ export async function insertCitizenReport(
         severity: sanitized.severity,
       })
       .select("id, category, title, description, lat, lng, severity, created_at")
+      .abortSignal(AbortSignal.timeout(15000))
       .single();
 
     if (error) {
-      return { ok: false, error: error.message };
+      return { ok: false, error: error.message, rejected: status >= 400 && status < 500 && /^[0-9A-Z]{5}$/.test(error.code ?? "") && !error.code.startsWith("PGRST") };
     }
 
     const parsed = parseCitizenReportRow(data);

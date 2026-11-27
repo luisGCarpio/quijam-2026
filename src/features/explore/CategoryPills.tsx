@@ -20,10 +20,10 @@ const ITEMS: ExploreFilter[] = [
 ];
 
 const ACTIVE_STYLES: Record<ExploreFilter, string> = {
-  todos: "border-[#0B2545] bg-[#0B2545] text-white",
+  todos: "border-bq-navy bg-bq-navy text-white",
   turismo: "border-sky-500 bg-sky-500 text-white",
   cultura: "border-fuchsia-500 bg-fuchsia-500 text-white",
-  comercio: "border-amber-500 bg-amber-400 text-[#0B2545]",
+  comercio: "border-amber-500 bg-amber-400 text-bq-navy",
   ambiente: "border-emerald-600 bg-emerald-600 text-white",
 };
 

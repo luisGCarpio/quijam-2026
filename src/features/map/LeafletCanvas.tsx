@@ -8,7 +8,11 @@ import { calculateRoutes, type RouteResult } from "@/lib/routing";
 import type { LatLng, Poi } from "@/types/bq360";
 
 interface LeafletCanvasProps {
-  onRouteResult: (result: RouteResult | null) => void;
+  onRouteResult: (result: RouteResult | null, error?: boolean) => void;
+  retry: number;
+  picking: boolean;
+  selectedPoint: LatLng | null;
+  onPick: (point: LatLng) => void;
 }
 
 /* Paleta oficial DESIGN.md para capas de mapa */
@@ -31,7 +35,7 @@ function escapeHtml(value: string): string {
     .replaceAll("'", "&#39;");
 }
 
-export default function LeafletCanvas({ onRouteResult }: LeafletCanvasProps) {
+export default function LeafletCanvas({ onRouteResult, retry, picking, selectedPoint, onPick }: LeafletCanvasProps) {
   const {
     simulation,
     weather,
@@ -40,6 +44,7 @@ export default function LeafletCanvas({ onRouteResult }: LeafletCanvasProps) {
     pois,
     activeLayers,
     routeRequest,
+    locationConfirmed,
     reports,
     lang,
     formatPrice,
@@ -70,6 +75,23 @@ export default function LeafletCanvas({ onRouteResult }: LeafletCanvasProps) {
   }, []);
 
   useEffect(() => {
+    const map = mapRef.current;
+    if (!mapReady || !map || !picking) return;
+    const handler = (event: L.LeafletMouseEvent) => onPick({ lat: event.latlng.lat, lng: event.latlng.lng });
+    map.closePopup();
+    map.on("click", handler);
+    map.getContainer().style.cursor = "crosshair";
+    return () => { map.off("click", handler); map.getContainer().style.cursor = ""; };
+  }, [mapReady, picking, onPick]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!mapReady || !map || !selectedPoint) return;
+    const marker = L.circleMarker([selectedPoint.lat, selectedPoint.lng], { radius: 9, interactive: false, color: "#10284B", weight: 3, fillColor: "#F3C922", fillOpacity: 1 }).addTo(map);
+    return () => { map.removeLayer(marker); };
+  }, [mapReady, selectedPoint]);
+
+  useEffect(() => {
     if (!mapReady) return;
     const map = mapRef.current;
     if (!map) return;
@@ -97,6 +119,7 @@ export default function LeafletCanvas({ onRouteResult }: LeafletCanvasProps) {
         event.radiusMeters * Math.max(0.85, simulation.crowdMultiplier);
       const circle = L.circle([event.coords.lat, event.coords.lng], {
         radius,
+        interactive: !picking,
         color: fillColor,
         weight: 3,
         fillColor,
@@ -116,6 +139,7 @@ export default function LeafletCanvas({ onRouteResult }: LeafletCanvasProps) {
       const polygon = L.polygon(
         arroyo.coords.map((point) => [point.lat, point.lng] as [number, number]),
         {
+          interactive: !picking,
           color: arroyosActive ? "#D9323B" : "#F3C922",
           weight: arroyosActive ? 5 : 2,
           dashArray: arroyosActive ? "10 7" : "5 8",
@@ -133,6 +157,7 @@ export default function LeafletCanvas({ onRouteResult }: LeafletCanvasProps) {
       if (!activeLayers[poi.layer]) continue;
       const marker = L.circleMarker([poi.coords.lat, poi.coords.lng], {
         radius: 7,
+        interactive: !picking,
         color: "#FFFFFF",
         weight: 2,
         fillColor: LAYER_COLORS[poi.layer],
@@ -166,6 +191,7 @@ export default function LeafletCanvas({ onRouteResult }: LeafletCanvasProps) {
     for (const report of reports) {
       const marker = L.circleMarker([report.lat, report.lng], {
         radius: report.severity === "alta" ? 9 : 7,
+        interactive: !picking,
         color: "#FFFFFF",
         weight: 2,
         fillColor: report.severity === "alta" ? "#D9323B" : "#F3C922",
@@ -186,6 +212,7 @@ export default function LeafletCanvas({ onRouteResult }: LeafletCanvasProps) {
     navigateToRoute,
     pois,
     reports,
+    picking,
     simulation,
     weather.arroyoRisk,
   ]);
@@ -196,34 +223,19 @@ export default function LeafletCanvas({ onRouteResult }: LeafletCanvasProps) {
     const routeLayers: L.Layer[] = [];
     let cancelled = false;
 
-    if (!routeRequest) {
-      onRouteResult(null);
-      return;
-    }
-
-    const drawRoutes = (origin: LatLng, destination: LatLng) => {
-      void calculateRoutes(origin, destination).then((result) => {
-        if (cancelled) return;
-        const direct = L.polyline(
-          result.directPath.map(
-            (point) => [point.lat, point.lng] as [number, number]
-          ),
-          { color: "#D9323B", weight: 6, opacity: 0.85, dashArray: "10 8" }
-        ).addTo(map);
-        const alternative = L.polyline(
-          result.alternativePath.map(
-            (point) => [point.lat, point.lng] as [number, number]
-          ),
-          { color: "#268C44", weight: 7, opacity: 1 }
-        ).addTo(map);
-        routeLayers.push(direct, alternative);
-        overlaysRef.current.push(direct, alternative);
-        map.fitBounds(alternative.getBounds(), { padding: [32, 32] });
-        onRouteResult(result);
-      });
-    };
-
-    drawRoutes(routeRequest.origin, routeRequest.destination);
+    if (!routeRequest || !locationConfirmed) return;
+    void calculateRoutes(routeRequest.origin, routeRequest.destination).then((result) => {
+      if (cancelled) return;
+      const direct = L.polyline(result.directPath.map((p) => [p.lat, p.lng]),
+        { color: "#D9323B", weight: 6, opacity: 0.85, dashArray: "10 8", interactive: false }).addTo(map);
+      routeLayers.push(direct);
+      if (result.alternativePath) {
+        routeLayers.push(L.polyline(result.alternativePath.map((p) => [p.lat, p.lng]),
+          { color: "#268C44", weight: 7, interactive: false }).addTo(map));
+      }
+      map.fitBounds(direct.getBounds(), { padding: [32, 32] });
+      onRouteResult(result);
+    }).catch(() => { if (!cancelled) onRouteResult(null, true); });
     return () => {
       cancelled = true;
       for (const layer of routeLayers) {
@@ -232,7 +244,7 @@ export default function LeafletCanvas({ onRouteResult }: LeafletCanvasProps) {
         if (index >= 0) overlaysRef.current.splice(index, 1);
       }
     };
-  }, [mapReady, onRouteResult, routeRequest]);
+  }, [mapReady, onRouteResult, routeRequest, locationConfirmed, retry]);
 
   return (
     <div

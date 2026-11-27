@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef } from "react";
 import { AlertTriangle, Send, X } from "lucide-react";
 import { useBQ360 } from "@/context/BQ360Context";
-import type { ReportCategory, Severity } from "@/types/bq360";
+import { REFERENCE_PLACES } from "./locations";
+import type { LatLng, ReportCategory, Severity } from "@/types/bq360";
 
 const CATEGORIES: readonly ReportCategory[] = [
   "aglomeracion",
@@ -18,17 +19,23 @@ const SEVERITIES: readonly Severity[] = ["baja", "media", "alta"];
 export default function ReportModal({
   open,
   onClose,
+  selectedPoint, onPointChange, onChooseMap,
 }: {
   open: boolean;
   onClose: () => void;
+  selectedPoint: LatLng | null;
+  onPointChange: (point: LatLng | null) => void;
+  onChooseMap: () => void;
 }) {
-  const { submitReport, userLocation, t } = useBQ360();
-  const [category, setCategory] = useState<ReportCategory>("aglomeracion");
-  const [severity, setSeverity] = useState<Severity>("media");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [error, setError] = useState("");
-  const [saving, setSaving] = useState(false);
+  const { submitReport, reportDraft, setReportDraft, t } = useBQ360();
+  const { category, severity, title, description, error, saving, pointConfirmed, published } = reportDraft;
+  const setCategory = (value: ReportCategory) => setReportDraft(prev => ({ ...prev, category: value }));
+  const setSeverity = (value: Severity) => setReportDraft(prev => ({ ...prev, severity: value }));
+  const setTitle = (value: string) => setReportDraft(prev => ({ ...prev, title: value, published: false }));
+  const setDescription = (value: string) => setReportDraft(prev => ({ ...prev, description: value, published: false }));
+  const setError = (value: string) => setReportDraft(prev => ({ ...prev, error: value }));
+  const setPointConfirmed = (value: boolean) => setReportDraft(prev => ({ ...prev, pointConfirmed: value }));
+  const setPublished = (value: boolean) => setReportDraft(prev => ({ ...prev, published: value }));
 
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
@@ -50,62 +57,13 @@ export default function ReportModal({
     }
   }, [open]);
 
-  // Fallback para Safari sin soporte nativo de <dialog closedby="any">
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (
-      typeof HTMLDialogElement === "undefined" ||
-      "closedBy" in HTMLDialogElement.prototype
-    ) {
-      return;
-    }
-
-    const isOutside = (event: PointerEvent): boolean => {
-      const rect = dialog.getBoundingClientRect();
-      return (
-        event.clientX < rect.left ||
-        event.clientX > rect.right ||
-        event.clientY < rect.top ||
-        event.clientY > rect.bottom
-      );
-    };
-
-    let pressedOutside = false;
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (
-        event.target !== dialog ||
-        (event.pointerType === "mouse" && event.button !== 0)
-      ) {
-        pressedOutside = false;
-        return;
-      }
-      pressedOutside = isOutside(event);
-    };
-
-    const handlePointerUp = (event: PointerEvent) => {
-      if (pressedOutside && isOutside(event)) {
-        dialog.close();
-      }
-      pressedOutside = false;
-    };
-
-    dialog.addEventListener("pointerdown", handlePointerDown);
-    dialog.addEventListener("pointerup", handlePointerUp);
-
-    return () => {
-      dialog.removeEventListener("pointerdown", handlePointerDown);
-      dialog.removeEventListener("pointerup", handlePointerUp);
-    };
-  }, []);
-
   const handleClose = () => {
     const dialog = dialogRef.current;
     if (dialog) {
       dialog.returnValue = "";
     }
     setError("");
+    setPublished(false);
     if (open) {
       onClose();
     }
@@ -113,33 +71,23 @@ export default function ReportModal({
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (saving) return;
+    setPublished(false);
+    if (!pointConfirmed || !selectedPoint) { setError(t("map.report.confirmPointFirst")); return; }
     const trimmedTitle = title.trim();
     if (trimmedTitle.length < 2) {
       setError(t("map.report.titleRequired"));
       return;
     }
 
-    setSaving(true);
-    setError("");
-    const result = await submitReport({
+    await submitReport({
       category,
       title: trimmedTitle,
       description: description.trim() || null,
-      lat: userLocation.lat,
-      lng: userLocation.lng,
+      lat: selectedPoint.lat,
+      lng: selectedPoint.lng,
       severity,
     });
-    setSaving(false);
-
-    if (result.ok) {
-      setTitle("");
-      setDescription("");
-      setCategory("aglomeracion");
-      setSeverity("media");
-      onClose();
-    } else {
-      setError(result.error ?? t("map.report.error"));
-    }
   };
 
   return (
@@ -147,7 +95,8 @@ export default function ReportModal({
       ref={dialogRef}
       aria-labelledby={titleId}
       onClose={handleClose}
-      {...({ closedby: "any" } as Record<string, string>)}
+      onCancel={(event) => { if (saving) event.preventDefault(); }}
+      {...({ closedby: "closerequest" } as Record<string, string>)}
       className="bq-overlay-surface m-auto mb-0 max-h-[85dvh] w-full max-w-[440px] overflow-y-auto overscroll-contain rounded-t-[24px] bg-white p-0 text-bq-text open:flex open:flex-col sm:mb-auto sm:rounded-[24px] backdrop:overflow-hidden backdrop:overscroll-contain backdrop:bg-bq-navy-deep/65 backdrop:backdrop-blur-[2px]"
     >
       <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] bg-white px-4 py-3.5">
@@ -176,6 +125,7 @@ export default function ReportModal({
             type="submit"
             value="close"
             autoFocus
+            disabled={saving}
             aria-label={t("map.close")}
             className="bq-touch-target inline-flex min-h-9 min-w-9 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-white text-bq-navy transition-colors duration-100 hover:bg-[var(--surface-muted)] active:opacity-80"
           >
@@ -189,7 +139,15 @@ export default function ReportModal({
         </form>
       </div>
 
-      <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3.5 p-4">
+      <form onSubmit={(e) => void handleSubmit(e)} className="p-4">
+        <fieldset disabled={saving} className="flex flex-col gap-3.5">
+        {published && <p role="status" className="font-bold text-bq-green">{t("map.report.published")}</p>}
+        <fieldset className="space-y-2"><legend className="font-bold text-sm">{t("map.report.point")}</legend>
+          <label className="block text-sm">{t("map.choosePlace")}<select className="block w-full rounded border p-2" value={selectedPoint ? String(REFERENCE_PLACES.findIndex(p => p.lat === selectedPoint.lat && p.lng === selectedPoint.lng)) : ""} onChange={e => { const place = REFERENCE_PLACES[Number(e.target.value)]; onPointChange(place); setPointConfirmed(false); setPublished(false); }}><option value="" disabled>{t("map.choosePlace")}</option>{selectedPoint && !REFERENCE_PLACES.some(p => p.lat === selectedPoint.lat && p.lng === selectedPoint.lng) && <option value="-1">{t("map.selectedOnMap")}</option>}{REFERENCE_PLACES.map((p, i) => <option key={p.name} value={i}>{p.name}</option>)}</select></label>
+          <button type="button" className="block underline" onClick={() => { setPointConfirmed(false); onChooseMap(); }}>{t("map.chooseOnMap")}</button>
+          {selectedPoint && <p className="text-sm">{selectedPoint.lat.toFixed(5)}, {selectedPoint.lng.toFixed(5)}</p>}
+          <label className="flex gap-2 text-sm"><input type="checkbox" checked={pointConfirmed} onChange={e => setPointConfirmed(e.target.checked)} disabled={!selectedPoint} />{t("map.report.confirmPoint")}</label>
+        </fieldset>
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label
@@ -292,6 +250,7 @@ export default function ReportModal({
           />
           <span>{saving ? t("map.report.saving") : t("map.report.send")}</span>
         </button>
+        </fieldset>
       </form>
     </dialog>
   );

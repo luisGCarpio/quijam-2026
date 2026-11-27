@@ -6,6 +6,7 @@ import {
   AlertTriangle,
   ArrowDownWideNarrow,
   CalendarClock,
+  CloudSun,
   Info,
   Landmark,
   Sparkles,
@@ -241,6 +242,8 @@ export default function EventsTab({
         </div>
       </section>
 
+      <p className="flex items-center gap-2 text-xs font-semibold text-bq-text"><CloudSun className="h-4 w-4" aria-hidden="true" />{weatherLabel}</p>
+
       {/* Banner de escenario activo cuando no es Operación Normal */}
       {featuredEvent && activeSimulation.scenarioId !== "normal" && (
         <div
@@ -274,12 +277,6 @@ export default function EventsTab({
           <h3 className="text-sm font-extrabold tracking-tight text-bq-navy">
             {modeLabel}
           </h3>
-          <p className="text-[0.6875rem] font-medium text-bq-muted">
-            {currentEvents.length}{" "}
-            {currentEvents.length === 1
-              ? copy.eventLabel
-              : copy.eventLabelPlural}
-          </p>
         </div>
         <span className="inline-flex items-center gap-1 rounded-full bg-[var(--surface-muted)] px-2.5 py-1 text-[0.6875rem] font-bold text-bq-navy">
           <ArrowDownWideNarrow
@@ -302,7 +299,6 @@ export default function EventsTab({
               lang={activeLang}
               copy={copy}
               attendance={attendance}
-              weatherLabel={weatherLabel}
               accessibleRoute={routeAccess}
               onNavigate={navigate}
             />

@@ -251,18 +251,18 @@ export function TopBar() {
                 })
               }
               className={`bq-touch-target relative inline-flex min-h-9 min-w-9 items-center justify-center rounded-xl border transition-[background-color,border-color,opacity] duration-100 active:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bq-yellow ${
-                anyInclusionActive
+                accessibility.highContrast
                   ? "border-bq-yellow bg-white/15 text-bq-yellow"
                   : "border-white/20 bg-white/10 text-white hover:bg-white/20"
               }`}
             >
-              <Accessibility
+              <Contrast
                 className="h-4 w-4 shrink-0"
                 strokeWidth={2}
                 absoluteStrokeWidth
                 aria-hidden="true"
               />
-              {anyInclusionActive && (
+              {accessibility.highContrast && (
                 <span
                   aria-hidden="true"
                   className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-bq-navy bg-bq-yellow"

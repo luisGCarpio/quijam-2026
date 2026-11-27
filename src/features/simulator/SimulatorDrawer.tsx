@@ -124,7 +124,7 @@ function ScenarioTile({
           {scenario.label[lang]}
         </strong>
         <span
-          className={`mt-0.5 block text-[0.6875rem] leading-snug ${
+          className={`mt-0.5 block text-xs leading-snug ${
             selected ? "text-white/85" : "text-bq-text"
           }`}
         >
@@ -186,7 +186,7 @@ function IntensityControl({
           >
             {copy.intensity}
           </label>
-          <p className="mt-0.5 text-[0.6875rem] leading-snug text-bq-muted">
+          <p className="mt-0.5 text-xs leading-snug text-bq-muted">
             {copy.intensityHelp}
           </p>
         </div>
@@ -238,7 +238,7 @@ export default function SimulatorDrawer() {
   } = useBQ360();
 
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
@@ -322,12 +322,12 @@ export default function SimulatorDrawer() {
 
   const applyPatch = async (patch: Partial<SimulationState>) => {
     setSaving(true);
-    setMessage("");
+    setMessage(null);
     try {
       await updateSimulation(patch);
-      setMessage(copy.scenarioApplied);
+      setMessage({ kind: "success", text: copy.scenarioApplied });
     } catch {
-      setMessage(copy.scenarioFailed);
+      setMessage({ kind: "error", text: copy.scenarioFailed });
     } finally {
       setSaving(false);
     }
@@ -554,7 +554,7 @@ export default function SimulatorDrawer() {
         />
 
         {/* Aviso y estado */}
-        <div className="flex items-start gap-2 rounded-xl bg-[var(--surface-muted)] px-3 py-2.5 text-[0.6875rem] leading-relaxed text-bq-muted">
+        <div className="flex items-start gap-2 rounded-xl bg-[var(--surface-muted)] px-3 py-2.5 text-xs leading-relaxed text-bq-muted">
           <Info
             className="mt-0.5 h-3.5 w-3.5 shrink-0 text-bq-navy"
             strokeWidth={2}
@@ -565,8 +565,8 @@ export default function SimulatorDrawer() {
         </div>
 
         {message && (
-          <p role="status" className="px-1 text-xs font-bold text-bq-green">
-            {message}
+          <p role="status" className={`px-1 text-xs font-bold ${message.kind === "error" ? "text-bq-red" : "text-bq-green"}`}>
+            {message.text}
           </p>
         )}
 

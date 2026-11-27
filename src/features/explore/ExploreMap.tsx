@@ -24,21 +24,6 @@ interface MapView {
   zoom: number;
 }
 
-interface MapRoute {
-  points: LatLng[];
-  distanceMeters: number;
-  durationSeconds: number;
-  fallback: boolean;
-}
-
-interface OsrmResponse {
-  routes?: Array<{
-    distance?: number;
-    duration?: number;
-    geometry?: { coordinates?: [number, number][] };
-  }>;
-}
-
 const TILE_SIZE = 256;
 const MIN_ZOOM = 11;
 const MAX_ZOOM = 16;
@@ -84,30 +69,6 @@ function clampZoom(zoom: number) {
   return Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
 }
 
-function haversineMeters(a: LatLng, b: LatLng) {
-  const earthRadius = 6371000;
-  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
-  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
-  const lat1 = (a.lat * Math.PI) / 180;
-  const lat2 = (b.lat * Math.PI) / 180;
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
-  return 2 * earthRadius * Math.asin(Math.sqrt(h));
-}
-
-function formatDistance(meters?: number) {
-  if (typeof meters !== "number" || !Number.isFinite(meters)) return "—";
-  return meters >= 1000 ? `${(meters / 1000).toFixed(1)} km` : `${Math.round(meters)} m`;
-}
-
-function formatDuration(seconds?: number) {
-  if (typeof seconds !== "number" || !Number.isFinite(seconds)) return "—";
-  const minutes = Math.max(1, Math.round(seconds / 60));
-  if (minutes < 60) return `${minutes} min`;
-  return `${Math.floor(minutes / 60)} h ${minutes % 60} min`;
-}
-
 export default function ExploreMap({
   pois,
   height,
@@ -116,10 +77,9 @@ export default function ExploreMap({
   const {
     lang,
     t,
-    routeRequest,
-    clearRoute,
     navigateToRoute,
     userLocation,
+    locationConfirmed,
     formatPrice,
   } = useBQ360();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -128,9 +88,6 @@ export default function ExploreMap({
   const [view, setView] = useState<MapView>(DEFAULT_VIEW);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [selected, setSelected] = useState<ExplorePoi | null>(null);
-  const [route, setRoute] = useState<MapRoute | null>(null);
-  const [routeLoading, setRouteLoading] = useState(false);
-  const [routeFallback, setRouteFallback] = useState(false);
 
   useEffect(() => {
     const element = containerRef.current;
@@ -142,73 +99,6 @@ export default function ExploreMap({
     observer.observe(element);
     return () => observer.disconnect();
   }, []);
-
-  useEffect(() => {
-    if (!routeRequest) return;
-
-    const controller = new AbortController();
-    let cancelled = false;
-    const origin = routeRequest.origin;
-    const destination = routeRequest.destination;
-    const fallbackDistance = haversineMeters(origin, destination);
-    const fallbackRoute: MapRoute = {
-      points: [origin, destination],
-      distanceMeters: fallbackDistance,
-      durationSeconds: fallbackDistance / (25 / 3.6),
-      fallback: true,
-    };
-
-    async function loadRoute() {
-      await Promise.resolve();
-      if (cancelled) return;
-      setRouteLoading(true);
-      setRouteFallback(false);
-      try {
-        const response = await fetch(
-          `https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?overview=full&geometries=geojson`,
-          { signal: controller.signal }
-        );
-        if (!response.ok) throw new Error("OSRM unavailable");
-        const data = (await response.json()) as OsrmResponse;
-        const best = data.routes?.[0];
-        const coordinates = best?.geometry?.coordinates;
-        if (!best || !coordinates || coordinates.length < 2) {
-          throw new Error("No route");
-        }
-        if (cancelled) return;
-        setRoute({
-          points: coordinates.map(([lng, lat]) => ({ lat, lng })),
-          distanceMeters: best.distance ?? fallbackDistance,
-          durationSeconds: best.duration ?? fallbackRoute.durationSeconds,
-          fallback: false,
-        });
-      } catch {
-        if (cancelled) return;
-        setRoute(fallbackRoute);
-        setRouteFallback(true);
-      } finally {
-        if (!cancelled) setRouteLoading(false);
-      }
-    }
-
-    loadRoute();
-    return () => {
-      cancelled = true;
-      controller.abort();
-    };
-  }, [routeRequest]);
-
-  useEffect(() => {
-    if (!routeRequest) return;
-    const frame = window.requestAnimationFrame(() => {
-      setView({
-        lat: (routeRequest.origin.lat + routeRequest.destination.lat) / 2,
-        lng: (routeRequest.origin.lng + routeRequest.destination.lng) / 2,
-        zoom: 13,
-      });
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [routeRequest]);
 
   const activeSelected = useMemo(
     () =>
@@ -303,16 +193,6 @@ export default function ExploreMap({
     dragRef.current = null;
   };
 
-  const visibleRoute = routeRequest ? route : null;
-  const routePoints = visibleRoute
-    ? visibleRoute.points
-        .map((point) => {
-          const screen = toScreen(point);
-          return `${screen.left},${screen.top}`;
-        })
-        .join(" ")
-    : "";
-
   const selectedPrice =
     activeSelected?.priceCop === 0
       ? t("explore.card.free")
@@ -325,7 +205,7 @@ export default function ExploreMap({
       ref={containerRef}
       role="region"
       aria-label={t("map.exploreMap")}
-      className="relative w-full touch-none overflow-hidden rounded-3xl border border-slate-200 bg-[#dbeafe]"
+      className="relative w-full touch-none overflow-hidden rounded-3xl border border-slate-200 bg-bq-sky"
       style={{ height: height ?? (compact ? 230 : 430) }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -339,7 +219,7 @@ export default function ExploreMap({
         className="absolute inset-0"
         style={{
           backgroundImage:
-            "linear-gradient(#bfdbfe 1px, transparent 1px), linear-gradient(90deg, #bfdbfe 1px, transparent 1px)",
+            "linear-gradient(var(--border-subtle) 1px, transparent 1px), linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px)",
           backgroundSize: "32px 32px",
         }}
       />
@@ -358,36 +238,6 @@ export default function ExploreMap({
           }}
         />
       ))}
-
-      <svg
-        className="pointer-events-none absolute inset-0 z-10"
-        width={size.width}
-        height={size.height}
-        aria-hidden="true"
-      >
-        {routePoints ? (
-          <>
-            <polyline
-              points={routePoints}
-              fill="none"
-              stroke="#ffffff"
-              strokeWidth={9}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              opacity={0.9}
-            />
-            <polyline
-              points={routePoints}
-              fill="none"
-              stroke={routeFallback ? "#DC2626" : "#15803D"}
-              strokeWidth={5}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeDasharray={routeFallback ? "9 7" : undefined}
-            />
-          </>
-        ) : null}
-      </svg>
 
       {pois.map((poi) => {
         const screen = toScreen(poi.coords);
@@ -409,20 +259,18 @@ export default function ExploreMap({
               event.stopPropagation();
               setSelected(poi);
             }}
-            className={`absolute z-20 flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white shadow-md transition hover:scale-110 ${
-              CATEGORY_COLORS[poi.category]
-            } ${active ? `ring-4 ${CATEGORY_RINGS[poi.category]}` : ""}`}
+            className="absolute z-20 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bq-navy"
             style={{ left: screen.left, top: screen.top }}
             aria-label={`${poi.name[lang] || poi.name.es} - ${t(`explore.category.${poi.category}`)}`}
             aria-pressed={active}
             title={poi.name[lang] || poi.name.es}
           >
-            <span className="h-2 w-2 rounded-full bg-white" />
+            <span className={`flex h-6 w-6 items-center justify-center rounded-full border-2 border-white shadow-md ${CATEGORY_COLORS[poi.category]} ${active ? `ring-4 ${CATEGORY_RINGS[poi.category]}` : ""}`}><span className="h-2 w-2 rounded-full bg-white" /></span>
           </button>
         );
       })}
 
-      {(() => {
+      {locationConfirmed && (() => {
         const screen = toScreen(userLocation);
         return (
           <div
@@ -436,17 +284,11 @@ export default function ExploreMap({
         );
       })()}
 
-      {routeRequest ? (
-        <div className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-full" style={toScreen(routeRequest.destination)}>
-          <span className="block h-3 w-3 rotate-45 border-2 border-white bg-[#15803D] shadow" />
-        </div>
-      ) : null}
-
       <div
-        className="absolute left-3 top-3 z-30 flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-extrabold text-[#0B2545] shadow-sm ring-1 ring-black/5"
+        className="absolute left-3 top-3 z-30 flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-extrabold text-bq-navy shadow-sm ring-1 ring-black/5"
         onClick={(event) => event.stopPropagation()}
       >
-        <span className="h-2 w-2 rounded-full bg-[#FACC15]" />
+        <span className="h-2 w-2 rounded-full bg-bq-yellow" />
         {t("app.city")}
         <span className="text-slate-400">·</span>
         <span className="font-semibold text-slate-500">
@@ -461,7 +303,7 @@ export default function ExploreMap({
         <button
           type="button"
           onClick={() => zoomBy(1)}
-          className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/95 text-lg font-bold text-[#0B2545] shadow-sm ring-1 ring-black/5 transition hover:bg-white active:scale-95"
+          className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/95 text-lg font-bold text-bq-navy shadow-sm ring-1 ring-black/5 transition hover:bg-white active:scale-95"
           aria-label={t("map.zoomIn")}
         >
           +
@@ -469,43 +311,44 @@ export default function ExploreMap({
         <button
           type="button"
           onClick={() => zoomBy(-1)}
-          className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/95 text-lg font-bold text-[#0B2545] shadow-sm ring-1 ring-black/5 transition hover:bg-white active:scale-95"
+          className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/95 text-lg font-bold text-bq-navy shadow-sm ring-1 ring-black/5 transition hover:bg-white active:scale-95"
           aria-label={t("map.zoomOut")}
         >
           −
         </button>
-        <button
+        {locationConfirmed ? <button
           type="button"
           onClick={() =>
             setView({ lat: userLocation.lat, lng: userLocation.lng, zoom: 15 })
           }
-          className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/95 text-[#0B2545] shadow-sm ring-1 ring-black/5 transition hover:bg-white active:scale-95"
+          className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/95 text-bq-navy shadow-sm ring-1 ring-black/5 transition hover:bg-white active:scale-95"
           aria-label={t("map.center")}
         >
           <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
             <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
             <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
           </svg>
-        </button>
+        </button> : null}
       </div>
 
-      {!routeRequest && !activeSelected ? (
-        <div className="pointer-events-none absolute inset-x-3 bottom-3 z-20 rounded-2xl bg-[#0B2545]/85 px-3 py-2 text-center text-[11px] font-semibold text-white backdrop-blur">
+      {!activeSelected ? (
+        <div className="pointer-events-none absolute inset-x-3 bottom-3 z-20 rounded-2xl bg-bq-navy/85 px-3 py-2 text-center text-[11px] font-semibold text-white backdrop-blur">
           {t("map.hint")}
         </div>
       ) : null}
 
-      {activeSelected && !routeRequest ? (
+      {activeSelected ? (
         <div
-          className={`absolute inset-x-3 bottom-3 z-30 rounded-2xl border-t-4 bg-white/95 p-3 shadow-xl ring-1 ring-black/5 backdrop-blur ${CATEGORY_ACCENTS[activeSelected.category]}`}
+          className={`absolute inset-x-3 bottom-3 z-30 max-h-[calc(100%-1.5rem)] touch-pan-y overflow-y-auto overscroll-contain rounded-2xl border-t-4 bg-[var(--surface-card)] p-3 shadow-xl ring-1 ring-black/5 ${CATEGORY_ACCENTS[activeSelected.category]}`}
           onClick={(event) => event.stopPropagation()}
+          onPointerDown={(event) => event.stopPropagation()}
         >
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-[10px] font-extrabold uppercase tracking-wide text-slate-400">
                 {t(`explore.category.${activeSelected.category}`)}
               </p>
-              <h3 className="text-sm font-extrabold leading-tight text-[#0B2545]">
+              <h3 className="text-sm font-extrabold leading-tight text-bq-navy">
                 {activeSelected.name[lang] || activeSelected.name.es}
               </h3>
               <p className="mt-1 text-[11px] text-slate-500">{activeSelected.address}</p>
@@ -519,8 +362,11 @@ export default function ExploreMap({
               ×
             </button>
           </div>
-          <div className="mt-2 flex items-center justify-between gap-3">
-            <span className="text-xs font-extrabold text-[#0B2545]">{selectedPrice}</span>
+          <p className="mt-2 text-xs font-bold text-bq-text">{t(activeSelected.accessible === true ? "explore.card.accessible" : activeSelected.accessible === false ? "explore.card.notAccessible" : "explore.card.accessibleUnknown")}</p>
+          <p className="mt-1 text-xs font-bold text-bq-text">{t(activeSelected.coordAccuracy === "verified" ? "explore.card.verifiedLocation" : "explore.card.approxLocation")}</p>
+          {activeSelected.locationNote ? <p className="mt-1 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-2 text-xs text-bq-text">{activeSelected.locationNote[lang] || activeSelected.locationNote.es}</p> : null}
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+            <span className="text-xs font-extrabold text-bq-navy">{t("explore.card.price")}: {selectedPrice}</span>
             <button
               type="button"
               onClick={() => {
@@ -531,7 +377,7 @@ export default function ExploreMap({
                 });
                 setSelected(null);
               }}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-[#15803D] px-3 py-2 text-[11px] font-extrabold text-white shadow-sm transition hover:bg-[#166534] active:scale-95"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-bq-green px-3 py-2 text-[11px] font-extrabold text-white shadow-sm transition hover:bg-bq-green/90 active:scale-95"
             >
               <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5" aria-hidden="true">
                 <path d="m4 11 16-7-7 16-2.5-6.5L4 11Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
@@ -539,49 +385,6 @@ export default function ExploreMap({
               {t("explore.card.viewMap")}
             </button>
           </div>
-        </div>
-      ) : null}
-
-      {routeRequest ? (
-        <div
-          className="absolute inset-x-3 bottom-3 z-30 rounded-2xl bg-white/95 p-3 shadow-xl ring-1 ring-black/5 backdrop-blur"
-          onClick={(event) => event.stopPropagation()}
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-[10px] font-extrabold uppercase tracking-wide text-slate-400">
-                {t("map.destination")}
-              </p>
-              <h3 className="truncate text-sm font-extrabold leading-tight text-[#0B2545]">
-                {routeRequest.destination.label}
-              </h3>
-            </div>
-            <button
-              type="button"
-              onClick={clearRoute}
-              className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-500"
-            >
-              {t("map.clearRoute")}
-            </button>
-          </div>
-          <div className="mt-2 flex flex-wrap gap-2 text-[11px] font-semibold text-slate-600">
-            <span className="rounded-full bg-slate-100 px-2.5 py-1">
-              {t("map.distance")}: {formatDistance(visibleRoute?.distanceMeters)}
-            </span>
-            <span className="rounded-full bg-slate-100 px-2.5 py-1">
-              {t("map.duration")}: {formatDuration(visibleRoute?.durationSeconds)}
-            </span>
-            {routeLoading ? (
-              <span className="rounded-full bg-sky-50 px-2.5 py-1 text-sky-700">
-                {t("map.calculating")}
-              </span>
-            ) : null}
-          </div>
-          {routeFallback ? (
-            <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-[10px] leading-relaxed text-amber-800">
-              {t("map.routeFallback")}
-            </p>
-          ) : null}
         </div>
       ) : null}
 

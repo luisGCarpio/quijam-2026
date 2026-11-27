@@ -1,0 +1,27 @@
+{
+  "name": "video-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "audio": "python scripts/generate-audio.py",
+    "record": "node scripts/record-app.mjs",
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts BQ360Demo out/bq360-demo.mp4",
+    "build:all": "npm run audio && npm run record && npm run render"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@remotion/cli": "^4.0.547",
+    "@remotion/media-utils": "^4.0.547",
+    "@types/react": "^19.3.3",
+    "playwright": "^1.65.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "remotion": "^4.0.547",
+    "typescript": "^7.0.2"
+  }
+}

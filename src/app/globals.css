@@ -10,6 +10,8 @@
   --color-navy: #10284B;
   --color-navy-deep: #0A1B34;
   --color-green: #268C44;
+  /* Functional green is darker so small text and white labels remain legible. */
+  --color-green-accessible: #21783B;
   --color-yellow: #F3C922;
   --color-red: #D9323B;
   --color-sky: #6AB4E2;
@@ -51,7 +53,7 @@
   --color-foreground: var(--color-text);
   --color-bq-navy: var(--color-navy);
   --color-bq-navy-deep: var(--color-navy-deep);
-  --color-bq-green: var(--color-green);
+  --color-bq-green: var(--color-green-accessible);
   --color-bq-yellow: var(--color-yellow);
   --color-bq-red: var(--color-red);
   --color-bq-sky: var(--color-sky);
@@ -290,6 +292,7 @@ html[data-contrast="high"] {
   --color-navy: #000000;
   --color-navy-deep: #000000;
   --color-green: #FFE600;
+  --color-green-accessible: #FFE600;
   --color-yellow: #FFE600;
   --color-red: #FFE600;
   --color-sky: #FFE600;

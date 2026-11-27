@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useBQ360 } from "@/context/BQ360Context";
+import { readTabFromLocation } from "@/lib/tab-navigation";
 import MapTab from "@/features/map/MapTab";
 import EventsTab from "@/features/events/EventsTab";
 import ExploreTab from "@/features/explore/ExploreTab";
@@ -13,8 +14,16 @@ import ToastBanner from "@/components/shell/ToastBanner";
 import NotificationDrawer from "@/components/shell/NotificationDrawer";
 
 export function AppShell() {
-  const { activeTab, t } = useBQ360();
+  const { activeTab, syncActiveTab, t } = useBQ360();
   const mainRef = useRef<HTMLElement>(null);
+
+  // La URL es la fuente de navegación al cargar y al recorrer el historial.
+  useEffect(() => {
+    const syncFromLocation = () => syncActiveTab(readTabFromLocation());
+    syncFromLocation();
+    window.addEventListener("popstate", syncFromLocation);
+    return () => window.removeEventListener("popstate", syncFromLocation);
+  }, [syncActiveTab]);
 
   // Al cambiar de pestaña, vuelve al inicio del área de contenido principal
   useEffect(() => {
