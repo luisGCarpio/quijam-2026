@@ -1,7 +1,13 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type {
   AppMode,
+  ArroyoZone,
   CitizenReport,
+  CityEvent,
+  LatLng,
+  LayerCategory,
+  LocalizedText,
+  Poi,
   ReportCategory,
   ScenarioId,
   Severity,
@@ -28,6 +34,21 @@ const VALID_REPORT_CATEGORIES: readonly ReportCategory[] = [
   "salud",
 ];
 const VALID_SEVERITIES: readonly Severity[] = ["baja", "media", "alta"];
+const VALID_LAYERS: readonly LayerCategory[] = [
+  "turismo",
+  "salud",
+  "movilidad",
+  "cultura",
+  "ambiente",
+  "comercio",
+  "seguridad",
+];
+const VALID_EVENT_CATEGORIES: readonly CityEvent["category"][] = [
+  "deporte",
+  "cultura",
+  "fanfest",
+  "ciudad",
+];
 
 const MIN_LAT = 10.8;
 const MAX_LAT = 11.2;
@@ -456,6 +477,245 @@ export function subscribeToSimulation(
         onStatus?.(false);
       }
     });
+
+  let disposed = false;
+  return () => {
+    if (disposed) return;
+    disposed = true;
+    void client.removeChannel(channel);
+  };
+}
+
+function parseLocalizedText(value: unknown): LocalizedText | null {
+  if (!isRecord(value)) return null;
+  const es = typeof value.es === "string" ? value.es : "";
+  if (!es) return null;
+  return {
+    es,
+    en: typeof value.en === "string" && value.en ? value.en : es,
+    pt: typeof value.pt === "string" && value.pt ? value.pt : es,
+    fr: typeof value.fr === "string" && value.fr ? value.fr : es,
+  };
+}
+
+function isLayerCategory(value: unknown): value is LayerCategory {
+  return (
+    typeof value === "string" &&
+    (VALID_LAYERS as readonly string[]).includes(value)
+  );
+}
+
+function isEventCategory(value: unknown): value is CityEvent["category"] {
+  return (
+    typeof value === "string" &&
+    (VALID_EVENT_CATEGORIES as readonly string[]).includes(value)
+  );
+}
+
+function parseCityEventRow(row: unknown): CityEvent | null {
+  if (!isRecord(row)) return null;
+  const id = typeof row.id === "string" ? row.id : "";
+  const mode = row.mode;
+  const name = parseLocalizedText(row.name);
+  const venue = typeof row.venue === "string" ? row.venue : "";
+  const lat = toFiniteNumber(row.lat);
+  const lng = toFiniteNumber(row.lng);
+  const capacity = toFiniteNumber(row.capacity);
+  const baseAttendance = toFiniteNumber(row.base_attendance);
+  const radiusMeters = toFiniteNumber(row.radius_meters);
+  const category = row.category;
+  const schedule = typeof row.schedule === "string" ? row.schedule : "";
+  const accessibleEntry = Boolean(row.accessible_entry);
+
+  if (
+    !id ||
+    !isAppMode(mode) ||
+    !name ||
+    !venue ||
+    lat === null ||
+    lng === null ||
+    capacity === null ||
+    capacity <= 0 ||
+    baseAttendance === null ||
+    radiusMeters === null ||
+    !isEventCategory(category)
+  ) {
+    return null;
+  }
+
+  return {
+    id,
+    mode,
+    name,
+    venue,
+    coords: { lat, lng },
+    capacity,
+    baseAttendance,
+    radiusMeters,
+    category,
+    schedule,
+    accessibleEntry,
+  };
+}
+
+function parseArroyoZoneRow(row: unknown): ArroyoZone | null {
+  if (!isRecord(row)) return null;
+  const id = typeof row.id === "string" ? row.id : "";
+  const name = typeof row.name === "string" ? row.name : "";
+  const riskLevel = row.risk_level;
+  if (
+    !id ||
+    !name ||
+    (riskLevel !== "moderado" && riskLevel !== "critico") ||
+    !Array.isArray(row.coords)
+  ) {
+    return null;
+  }
+
+  const coords: LatLng[] = [];
+  for (const pt of row.coords) {
+    if (!isRecord(pt)) continue;
+    const lat = toFiniteNumber(pt.lat);
+    const lng = toFiniteNumber(pt.lng);
+    if (lat !== null && lng !== null) {
+      coords.push({ lat, lng });
+    }
+  }
+  if (coords.length < 2) return null;
+
+  return { id, name, riskLevel, coords };
+}
+
+function parseCityPoiRow(row: unknown): Poi | null {
+  if (!isRecord(row)) return null;
+  const id = typeof row.id === "string" ? row.id : "";
+  const layer = row.layer;
+  const name = parseLocalizedText(row.name);
+  const description = parseLocalizedText(row.description);
+  const address = typeof row.address === "string" ? row.address : "";
+  const lat = toFiniteNumber(row.lat);
+  const lng = toFiniteNumber(row.lng);
+  const priceCop =
+    row.price_cop === null || row.price_cop === undefined
+      ? undefined
+      : (toFiniteNumber(row.price_cop) ?? undefined);
+
+  if (
+    !id ||
+    !isLayerCategory(layer) ||
+    !name ||
+    !description ||
+    lat === null ||
+    lng === null
+  ) {
+    return null;
+  }
+
+  return {
+    id,
+    layer,
+    name,
+    description,
+    address,
+    coords: { lat, lng },
+    priceCop,
+    isPopularEconomy: Boolean(row.is_popular_economy),
+    accessible: Boolean(row.accessible),
+    phone: typeof row.phone === "string" ? row.phone : undefined,
+    tags: Array.isArray(row.tags)
+      ? row.tags.filter((tag): tag is string => typeof tag === "string")
+      : undefined,
+  };
+}
+
+export async function fetchCityEvents(): Promise<CityEvent[]> {
+  const client = getSupabaseClient();
+  if (!client) return [];
+
+  try {
+    const { data, error } = await client
+      .from("city_events")
+      .select(
+        "id, mode, name, venue, lat, lng, capacity, base_attendance, radius_meters, category, schedule, accessible_entry"
+      )
+      .order("capacity", { ascending: false });
+
+    if (error || !Array.isArray(data)) return [];
+    const parsed: CityEvent[] = [];
+    for (const row of data) {
+      const item = parseCityEventRow(row);
+      if (item) parsed.push(item);
+    }
+    return parsed;
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchArroyoZones(): Promise<ArroyoZone[]> {
+  const client = getSupabaseClient();
+  if (!client) return [];
+
+  try {
+    const { data, error } = await client
+      .from("arroyo_zones")
+      .select("id, name, risk_level, coords");
+
+    if (error || !Array.isArray(data)) return [];
+    const parsed: ArroyoZone[] = [];
+    for (const row of data) {
+      const item = parseArroyoZoneRow(row);
+      if (item) parsed.push(item);
+    }
+    return parsed;
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchCityPois(): Promise<Poi[]> {
+  const client = getSupabaseClient();
+  if (!client) return [];
+
+  try {
+    const { data, error } = await client
+      .from("city_pois")
+      .select(
+        "id, layer, name, description, address, lat, lng, price_cop, is_popular_economy, accessible, phone, tags"
+      )
+      .limit(250);
+
+    if (error || !Array.isArray(data)) return [];
+    const parsed: Poi[] = [];
+    for (const row of data) {
+      const item = parseCityPoiRow(row);
+      if (item) parsed.push(item);
+    }
+    return parsed;
+  } catch {
+    return [];
+  }
+}
+
+export function subscribeToCityEvents(onChange: () => void): () => void {
+  const client = getSupabaseClient();
+  if (!client) return () => {};
+
+  const channelName = `bq360-events-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const channel = client
+    .channel(channelName)
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "city_events",
+      },
+      () => {
+        onChange();
+      }
+    )
+    .subscribe();
 
   let disposed = false;
   return () => {

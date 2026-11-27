@@ -179,6 +179,11 @@ export interface BQ360ContextValue {
   setSimulatorOpen: (open: boolean) => void;
   supabaseConnected: boolean;
 
+  // Catálogos sincronizados con Supabase (respaldo local instantáneo)
+  events: CityEvent[];
+  arroyos: ArroyoZone[];
+  pois: Poi[];
+
   // Core: Rutas y Capas
   activeLayers: Record<LayerCategory, boolean>;
   toggleLayer: (layer: LayerCategory) => void;

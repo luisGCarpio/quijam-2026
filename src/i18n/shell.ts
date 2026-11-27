@@ -10,7 +10,7 @@ export const shellDict: TranslationDict = {
     "shell.close": "Cerrar",
 
     "shell.mode.mundial_2034": "Mundial 2034",
-    "shell.mode.legado": "Legado Post-2034",
+    "shell.mode.legado": "Legado 2034",
 
     "shell.skipToContent": "Saltar al contenido principal",
     "shell.nav.primary": "Principal",
@@ -87,7 +87,7 @@ export const shellDict: TranslationDict = {
     "shell.close": "Close",
 
     "shell.mode.mundial_2034": "World Cup 2034",
-    "shell.mode.legado": "Post-2034 Legacy",
+    "shell.mode.legado": "Legacy 2034",
 
     "shell.skipToContent": "Skip to main content",
     "shell.nav.primary": "Primary",
@@ -164,7 +164,7 @@ export const shellDict: TranslationDict = {
     "shell.close": "Fechar",
 
     "shell.mode.mundial_2034": "Copa 2034",
-    "shell.mode.legado": "Legado Pós-2034",
+    "shell.mode.legado": "Legado 2034",
 
     "shell.skipToContent": "Ir para o conteúdo principal",
     "shell.nav.primary": "Principal",
@@ -241,7 +241,7 @@ export const shellDict: TranslationDict = {
     "shell.close": "Fermer",
 
     "shell.mode.mundial_2034": "Mondial 2034",
-    "shell.mode.legado": "Héritage Post-2034",
+    "shell.mode.legado": "Héritage 2034",
 
     "shell.skipToContent": "Aller au contenu principal",
     "shell.nav.primary": "Principale",

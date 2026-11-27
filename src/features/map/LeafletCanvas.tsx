@@ -3,9 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { ALL_POIS } from "@/data/all-pois";
-import { ARROYO_ZONES } from "@/data/arroyos";
-import { CITY_EVENTS } from "@/data/events";
 import { useBQ360 } from "@/context/BQ360Context";
 import { calculateRoutes, type RouteResult } from "@/lib/routing";
 import type { LatLng, Poi } from "@/types/bq360";
@@ -14,20 +11,33 @@ interface LeafletCanvasProps {
   onRouteResult: (result: RouteResult | null) => void;
 }
 
+/* Paleta oficial DESIGN.md para capas de mapa */
 const LAYER_COLORS: Record<Poi["layer"], string> = {
-  turismo: "#38BDF8",
-  salud: "#DC2626",
-  movilidad: "#0B2545",
-  cultura: "#9333EA",
-  ambiente: "#15803D",
-  comercio: "#F59E0B",
-  seguridad: "#2563EB",
+  turismo: "#6AB4E2",
+  salud: "#D9323B",
+  movilidad: "#10284B",
+  cultura: "#F3C922",
+  ambiente: "#268C44",
+  comercio: "#F3C922",
+  seguridad: "#10284B",
 };
+
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
 
 export default function LeafletCanvas({ onRouteResult }: LeafletCanvasProps) {
   const {
     simulation,
     weather,
+    events,
+    arroyos,
+    pois,
     activeLayers,
     routeRequest,
     reports,
@@ -69,45 +79,57 @@ export default function LeafletCanvas({ onRouteResult }: LeafletCanvasProps) {
     }
     overlaysRef.current = [];
 
-    const activeEvents = CITY_EVENTS.filter((event) => event.mode === simulation.mode);
+    const activeEvents = events.filter(
+      (event) => event.mode === simulation.mode
+    );
     for (const event of activeEvents) {
-      const attendanceRatio =
-        Math.min(1, (event.baseAttendance / event.capacity) * simulation.crowdMultiplier);
+      const attendanceRatio = Math.min(
+        1,
+        (event.baseAttendance / event.capacity) * simulation.crowdMultiplier
+      );
       const fillColor =
-        attendanceRatio >= 0.85 ? "#DC2626" : attendanceRatio >= 0.60 ? "#FACC15" : "#15803D";
-      const radius = event.radiusMeters * Math.max(0.85, simulation.crowdMultiplier);
+        attendanceRatio >= 0.85
+          ? "#D9323B"
+          : attendanceRatio >= 0.6
+            ? "#F3C922"
+            : "#268C44";
+      const radius =
+        event.radiusMeters * Math.max(0.85, simulation.crowdMultiplier);
       const circle = L.circle([event.coords.lat, event.coords.lng], {
         radius,
         color: fillColor,
         weight: 3,
         fillColor,
-        fillOpacity: attendanceRatio >= 0.85 ? 0.42 : 0.28,
+        fillOpacity: attendanceRatio >= 0.85 ? 0.38 : 0.24,
         className: attendanceRatio >= 0.85 ? "bq360-pulse" : "",
       }).addTo(map);
       circle.bindPopup(
-        `<strong>${event.name[lang]}</strong><br>${event.venue}<br>${Math.round(attendanceRatio * 100)}%`
+        `<strong>${escapeHtml(event.name[lang])}</strong><br>${escapeHtml(event.venue)}<br>${Math.round(attendanceRatio * 100)}%`
       );
       overlaysRef.current.push(circle);
     }
 
     const arroyosActive =
-      simulation.scenarioId === "rain_arroyos" || weather.arroyoRisk === "critico";
-    for (const arroyo of ARROYO_ZONES) {
+      simulation.scenarioId === "rain_arroyos" ||
+      weather.arroyoRisk === "critico";
+    for (const arroyo of arroyos) {
       const polygon = L.polygon(
         arroyo.coords.map((point) => [point.lat, point.lng] as [number, number]),
         {
-          color: arroyosActive ? "#DC2626" : "#F59E0B",
+          color: arroyosActive ? "#D9323B" : "#F3C922",
           weight: arroyosActive ? 5 : 2,
           dashArray: arroyosActive ? "10 7" : "5 8",
-          fillColor: arroyosActive ? "#DC2626" : "#FACC15",
-          fillOpacity: arroyosActive ? 0.32 : 0.12,
+          fillColor: arroyosActive ? "#D9323B" : "#F3C922",
+          fillOpacity: arroyosActive ? 0.3 : 0.14,
         }
       ).addTo(map);
-      polygon.bindPopup(`<strong>${arroyo.name}</strong><br>${arroyosActive ? "Riesgo activo" : "Vigilancia"}`);
+      polygon.bindPopup(
+        `<strong>${escapeHtml(arroyo.name)}</strong><br>${arroyosActive ? "Riesgo activo" : "Vigilancia"}`
+      );
       overlaysRef.current.push(polygon);
     }
 
-    for (const poi of ALL_POIS) {
+    for (const poi of pois) {
       if (!activeLayers[poi.layer]) continue;
       const marker = L.circleMarker([poi.coords.lat, poi.coords.lng], {
         radius: 7,
@@ -117,11 +139,19 @@ export default function LeafletCanvas({ onRouteResult }: LeafletCanvasProps) {
         fillOpacity: 1,
       }).addTo(map);
       const price = poi.priceCop
-        ? `<br><strong>${formatPrice(poi.priceCop)}</strong>`
+        ? `<br><strong>${escapeHtml(formatPrice(poi.priceCop))}</strong>`
         : "";
+      const routeCta =
+        lang === "en"
+          ? "Route here"
+          : lang === "pt"
+            ? "Ir aqui"
+            : lang === "fr"
+              ? "Y aller"
+              : "Ir aquí";
       marker.bindPopup(
-        `<strong>${poi.name[lang]}</strong><br>${poi.description[lang]}${price}<br>` +
-        `<button id="route-${poi.id}" style="margin-top:8px;border:0;border-radius:8px;background:#0B2545;color:white;padding:7px 10px">Ir aquí</button>`
+        `<strong>${escapeHtml(poi.name[lang])}</strong><br>${escapeHtml(poi.description[lang])}${price}<br>` +
+          `<button id="route-${escapeHtml(poi.id)}" style="margin-top:8px;border:0;border-radius:10px;background:#10284B;color:#FFFFFF;font-weight:700;padding:7px 12px;cursor:pointer">${routeCta}</button>`
       );
       marker.on("popupopen", () => {
         document.getElementById(`route-${poi.id}`)?.addEventListener(
@@ -138,13 +168,27 @@ export default function LeafletCanvas({ onRouteResult }: LeafletCanvasProps) {
         radius: report.severity === "alta" ? 9 : 7,
         color: "#FFFFFF",
         weight: 2,
-        fillColor: report.severity === "alta" ? "#DC2626" : "#F59E0B",
-        fillOpacity: 0.9,
+        fillColor: report.severity === "alta" ? "#D9323B" : "#F3C922",
+        fillOpacity: 0.95,
       }).addTo(map);
-      marker.bindPopup(`<strong>${report.title}</strong><br>${report.description ?? ""}`);
+      marker.bindPopup(
+        `<strong>${escapeHtml(report.title)}</strong>${report.description ? `<br>${escapeHtml(report.description)}` : ""}`
+      );
       overlaysRef.current.push(marker);
     }
-  }, [activeLayers, formatPrice, lang, mapReady, navigateToRoute, reports, simulation, weather.arroyoRisk]);
+  }, [
+    activeLayers,
+    arroyos,
+    events,
+    formatPrice,
+    lang,
+    mapReady,
+    navigateToRoute,
+    pois,
+    reports,
+    simulation,
+    weather.arroyoRisk,
+  ]);
 
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
@@ -157,16 +201,20 @@ export default function LeafletCanvas({ onRouteResult }: LeafletCanvasProps) {
       return;
     }
 
-    const drawFallback = (origin: LatLng, destination: LatLng) => {
+    const drawRoutes = (origin: LatLng, destination: LatLng) => {
       void calculateRoutes(origin, destination).then((result) => {
         if (cancelled) return;
         const direct = L.polyline(
-          result.directPath.map((point) => [point.lat, point.lng] as [number, number]),
-          { color: "#DC2626", weight: 6, opacity: 0.85, dashArray: "10 8" }
+          result.directPath.map(
+            (point) => [point.lat, point.lng] as [number, number]
+          ),
+          { color: "#D9323B", weight: 6, opacity: 0.85, dashArray: "10 8" }
         ).addTo(map);
         const alternative = L.polyline(
-          result.alternativePath.map((point) => [point.lat, point.lng] as [number, number]),
-          { color: "#15803D", weight: 7, opacity: 1 }
+          result.alternativePath.map(
+            (point) => [point.lat, point.lng] as [number, number]
+          ),
+          { color: "#268C44", weight: 7, opacity: 1 }
         ).addTo(map);
         routeLayers.push(direct, alternative);
         overlaysRef.current.push(direct, alternative);
@@ -175,7 +223,7 @@ export default function LeafletCanvas({ onRouteResult }: LeafletCanvasProps) {
       });
     };
 
-    drawFallback(routeRequest.origin, routeRequest.destination);
+    drawRoutes(routeRequest.origin, routeRequest.destination);
     return () => {
       cancelled = true;
       for (const layer of routeLayers) {
@@ -189,7 +237,7 @@ export default function LeafletCanvas({ onRouteResult }: LeafletCanvasProps) {
   return (
     <div
       ref={containerRef}
-      className="h-[360px] w-full bg-slate-200"
+      className="h-[340px] w-full bg-[var(--surface-muted)]"
       aria-label="Interactive Barranquilla map"
     />
   );

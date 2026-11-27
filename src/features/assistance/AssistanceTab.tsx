@@ -17,6 +17,7 @@ type Props = {
   locationLabel: string;
   currency: Currency;
   accessibility: AccessibilityPrefs;
+  pois?: Poi[];
   navigateToRoute: (destination: LatLng & { label: string }) => void;
   updateAccessibility: (patch: Partial<AccessibilityPrefs>) => void;
   testVoice: () => void;
@@ -32,7 +33,7 @@ const CONTROLS = [
 const actionClass = "bq-touch-target flex w-full items-center gap-3 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-3 text-left text-bq-text shadow-sm transition-shadow hover:shadow-md focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-bq-yellow";
 
 export function AssistanceContent({
-  lang, userLocation, locationLabel, currency, accessibility,
+  lang, userLocation, locationLabel, currency, accessibility, pois = ASSISTANCE_POIS,
   navigateToRoute, updateAccessibility, testVoice,
 }: Props) {
   const text = assistanceTexts[lang];
@@ -59,7 +60,7 @@ export function AssistanceContent({
   }
 
   function goToNearest(layer: "salud" | "seguridad") {
-    const result = findNearestPoi(userLocation, ASSISTANCE_POIS.filter((item) => item.layer === layer));
+    const result = findNearestPoi(userLocation, pois.filter((item) => item.layer === layer));
     if (result) {
       setError("");
       go(result.poi);
@@ -99,7 +100,7 @@ export function AssistanceContent({
             <a className="underline" href="https://barranquilla.gov.co/seguridad/cai-y-estaciones-de-policia">{text.securityGroup}</a>
           </div>
           {(["salud", "seguridad"] as const).map((layer) => {
-            const points = ASSISTANCE_POIS.filter((poi) => poi.layer === layer)
+            const points = pois.filter((poi) => poi.layer === layer)
               .sort((a, b) => haversineKm(userLocation, a.coords) - haversineKm(userLocation, b.coords));
             return (
               <div key={layer}>
@@ -175,9 +176,10 @@ export function AssistanceContent({
 }
 
 export default function AssistanceTab() {
-  const { lang, userLocation, currency, accessibility, navigateToRoute, updateAccessibility, pushNotification } = useBQ360();
+  const { lang, userLocation, currency, accessibility, pois, navigateToRoute, updateAccessibility, pushNotification } = useBQ360();
   const text = assistanceTexts[lang];
   const isDefaultLocation = Math.abs(userLocation.lat - 10.9878) < 0.0005 && Math.abs(userLocation.lng + 74.7889) < 0.0005;
+  const assistancePois = pois.filter((item) => item.layer === "salud" || item.layer === "seguridad");
 
   return (
     <AssistanceContent
@@ -186,6 +188,7 @@ export default function AssistanceTab() {
       locationLabel={isDefaultLocation ? "Plaza de la Paz" : text.location}
       currency={currency}
       accessibility={accessibility}
+      pois={assistancePois.length > 0 ? assistancePois : ASSISTANCE_POIS}
       navigateToRoute={navigateToRoute}
       updateAccessibility={updateAccessibility}
       testVoice={() => pushNotification({

@@ -10,16 +10,23 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { ALL_POIS } from "@/data/all-pois";
+import { ARROYO_ZONES } from "@/data/arroyos";
+import { CITY_EVENTS } from "@/data/events";
 import { SCENARIOS } from "@/data/scenarios";
 import { getTranslation } from "@/i18n";
 import { formatCop } from "@/lib/currency";
 import { speakAlert, stopSpeech } from "@/lib/speech";
 import {
+  fetchArroyoZones,
+  fetchCityEvents,
+  fetchCityPois,
   fetchGlobalSimulation,
   fetchRecentReports,
   insertCitizenReport,
   isSupabaseConfigured,
   subscribeToCitizenReports,
+  subscribeToCityEvents,
   subscribeToSimulation,
   updateGlobalSimulation,
   validateCitizenReportInput,
@@ -31,13 +38,16 @@ import {
 } from "@/lib/weather";
 import type {
   AccessibilityPrefs,
+  ArroyoZone,
   BQ360ContextValue,
   CitizenReport,
+  CityEvent,
   Currency,
   Lang,
   LatLng,
   LayerCategory,
   NotificationItem,
+  Poi,
   RouteRequest,
   SimulationState,
   TabId,
@@ -75,7 +85,7 @@ const DEFAULT_ACCESSIBILITY: AccessibilityPrefs = {
 const INITIAL_SIMULATION: SimulationState = {
   mode: "mundial_2034",
   scenarioId: "normal",
-  crowdMultiplier: 1.0,
+  crowdMultiplier: 0.8,
   weatherOverride: null,
   updatedAt: "",
 };
@@ -230,6 +240,9 @@ export function BQ360Provider({ children }: { children: ReactNode }) {
   const [syncEnabled, setSyncEnabledState] = useState<boolean>(true);
   const [simulatorOpen, setSimulatorOpen] = useState<boolean>(false);
   const [realtimeConnected, setRealtimeConnected] = useState<boolean>(false);
+  const [events, setEvents] = useState<CityEvent[]>(CITY_EVENTS);
+  const [arroyos, setArroyos] = useState<ArroyoZone[]>(ARROYO_ZONES);
+  const [pois, setPois] = useState<Poi[]>(ALL_POIS);
   const [activeLayers, setActiveLayers] =
     useState<Record<LayerCategory, boolean>>(DEFAULT_LAYERS);
   const [routeRequest, setRouteRequest] = useState<RouteRequest | null>(null);
@@ -480,6 +493,42 @@ export function BQ360Provider({ children }: { children: ReactNode }) {
     };
   }, [pushNotification]);
 
+  // 4c. Hydrate city_events, arroyo_zones, and city_pois from Supabase (with instant local fallback)
+  useEffect(() => {
+    if (!isSupabaseConfigured()) {
+      return;
+    }
+
+    let active = true;
+
+    const loadCatalogs = async () => {
+      const [remoteEvents, remoteArroyos, remotePois] = await Promise.all([
+        fetchCityEvents(),
+        fetchArroyoZones(),
+        fetchCityPois(),
+      ]);
+      if (!active) return;
+      if (remoteEvents.length > 0) setEvents(remoteEvents);
+      if (remoteArroyos.length > 0) setArroyos(remoteArroyos);
+      if (remotePois.length > 0) setPois(remotePois);
+    };
+
+    void loadCatalogs();
+
+    const unsubscribeEvents = subscribeToCityEvents(() => {
+      void fetchCityEvents().then((remoteEvents) => {
+        if (active && remoteEvents.length > 0) {
+          setEvents(remoteEvents);
+        }
+      });
+    });
+
+    return () => {
+      active = false;
+      unsubscribeEvents();
+    };
+  }, []);
+
   const setLang = useCallback((nextLang: Lang) => {
     userTouchedPrefsRef.current.lang = true;
     langRef.current = nextLang;
@@ -716,6 +765,9 @@ export function BQ360Provider({ children }: { children: ReactNode }) {
       simulatorOpen,
       setSimulatorOpen,
       supabaseConnected,
+      events,
+      arroyos,
+      pois,
       activeLayers,
       toggleLayer,
       routeRequest,
@@ -751,6 +803,9 @@ export function BQ360Provider({ children }: { children: ReactNode }) {
       updateSimulation,
       simulatorOpen,
       supabaseConnected,
+      events,
+      arroyos,
+      pois,
       activeLayers,
       toggleLayer,
       routeRequest,
