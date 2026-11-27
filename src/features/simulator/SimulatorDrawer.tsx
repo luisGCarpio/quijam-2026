@@ -23,14 +23,12 @@ function ScenarioTile({
   lang,
   selected,
   onSelect,
-  copy,
   disabled,
 }: {
   scenario: ScenarioDefinition;
   lang: EventsLang;
   selected: boolean;
   onSelect: () => void;
-  copy: ReturnType<typeof getEventsCopy>;
   disabled: boolean;
 }) {
   return (
@@ -238,7 +236,6 @@ export default function SimulatorDrawer({
                   key={scenario.id}
                   scenario={scenario}
                   lang={lang}
-                  copy={copy}
                   selected={currentScenario.id === scenario.id}
                   onSelect={() => selectScenario(scenario)}
                   disabled={saving}
