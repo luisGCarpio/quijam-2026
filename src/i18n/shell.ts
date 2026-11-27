@@ -1,0 +1,313 @@
+// Archivo exclusivo de Dev 1 — Diccionario completo del Shell BQ360 (ES / EN / PT / FR)
+import type { TranslationDict } from "@/types/bq360";
+
+export const shellDict: TranslationDict = {
+  es: {
+    "shell.brand": "BQ360",
+    "shell.tagline": "Barranquilla 2034 · Ciudad Viva",
+    "shell.title": "BQ360 · Barranquilla 2034",
+    "shell.subtitle": "Aforo en vivo, rutas alternativas y servicios ciudadanos",
+    "shell.close": "Cerrar",
+
+    "shell.mode.mundial_2034": "Mundial 2034",
+    "shell.mode.legado": "Legado 2034",
+
+    "shell.skipToContent": "Saltar al contenido principal",
+    "shell.nav.primary": "Principal",
+    "shell.header.controls": "Controles globales de BQ360",
+
+    "shell.tab.map": "Mapa",
+    "shell.tab.events": "Eventos",
+    "shell.tab.explore": "Explorar",
+    "shell.tab.assistance": "Asistencia",
+
+    "shell.tab.title.map": "Mapa y Rutas",
+    "shell.tab.title.events": "Radar de Eventos",
+    "shell.tab.title.explore": "Explorar Ciudad",
+    "shell.tab.title.assistance": "Asistencia e Inclusión",
+
+    "shell.weather.label": "Clima en Barranquilla",
+    "shell.weather.feelsLike": "Sensación",
+    "shell.weather.uv": "UV",
+    "shell.weather.simulated": "Simulado",
+    "shell.weather.condition.sunny": "Soleado",
+    "shell.weather.condition.cloudy": "Nublado",
+    "shell.weather.condition.heat_alert": "Alerta térmica",
+    "shell.weather.condition.rain_arroyo": "Lluvia y arroyos",
+    "shell.weather.arroyo.bajo": "Arroyos: Bajo",
+    "shell.weather.arroyo.moderado": "Arroyos: Moderado",
+    "shell.weather.arroyo.critico": "Arroyos: Crítico",
+
+    "shell.lang.label": "Idioma",
+    "shell.currency.label": "Moneda",
+
+    "shell.inclusion.label": "Accesibilidad e inclusión",
+    "shell.inclusion.active": "Inclusión activa",
+    "shell.inclusion.toggleContrast": "Alternar alto contraste",
+    "shell.inclusion.routeOn": "Ruta accesible",
+    "shell.inclusion.contrastOn": "Alto contraste",
+    "shell.inclusion.largeTextOn": "Texto grande",
+    "shell.inclusion.voiceOn": "Alertas por voz",
+
+    "shell.simulator.open": "Simulador",
+
+    "shell.sync.live": "En Vivo",
+    "shell.sync.local": "Local",
+    "shell.sync.offline": "Sin conexión",
+
+    "shell.notifications.region": "Notificaciones",
+    "shell.notifications.srHeading": "Anuncios y alertas de BQ360",
+    "shell.notifications.open": "Abrir centro de alertas",
+    "shell.notifications.unreadSuffix": "sin leer",
+    "shell.notifications.unreadSingle": "Sin leer",
+    "shell.notifications.title": "Centro de Alertas",
+    "shell.notifications.markAllRead": "Marcar todo como leído",
+    "shell.notifications.close": "Cerrar centro de alertas",
+    "shell.notifications.dismissToast": "Descartar notificación",
+    "shell.notifications.empty": "Sin alertas recientes",
+    "shell.notifications.emptyHint":
+      "Las alertas de aforo, arroyos y reportes ciudadanos aparecerán aquí.",
+    "shell.notifications.severity.alta": "Alta",
+    "shell.notifications.severity.media": "Media",
+    "shell.notifications.severity.baja": "Baja",
+
+    "shell.notify.scenarioUpdated": "Escenario actualizado",
+    "shell.notify.newReport": "Nuevo reporte ciudadano",
+    "shell.notify.welcomeTitle": "Bienvenido a BQ360",
+    "shell.notify.welcomeBody":
+      "Monitoreo en vivo de aforo, clima y rutas seguras en Barranquilla.",
+    "shell.notify.highContrastOn": "Modo de alto contraste activado",
+    "shell.notify.highContrastOff": "Modo de alto contraste desactivado",
+  },
+  en: {
+    "shell.brand": "BQ360",
+    "shell.tagline": "Barranquilla 2034 · Living City",
+    "shell.title": "BQ360 · Barranquilla 2034",
+    "shell.subtitle": "Live crowd monitoring, alternative routes & citizen services",
+    "shell.close": "Close",
+
+    "shell.mode.mundial_2034": "World Cup 2034",
+    "shell.mode.legado": "Legacy 2034",
+
+    "shell.skipToContent": "Skip to main content",
+    "shell.nav.primary": "Primary",
+    "shell.header.controls": "Global BQ360 controls",
+
+    "shell.tab.map": "Map",
+    "shell.tab.events": "Events",
+    "shell.tab.explore": "Explore",
+    "shell.tab.assistance": "Assistance",
+
+    "shell.tab.title.map": "Map & Routes",
+    "shell.tab.title.events": "Events Radar",
+    "shell.tab.title.explore": "Explore City",
+    "shell.tab.title.assistance": "Assistance & Inclusion",
+
+    "shell.weather.label": "Barranquilla weather",
+    "shell.weather.feelsLike": "Feels like",
+    "shell.weather.uv": "UV",
+    "shell.weather.simulated": "Simulated",
+    "shell.weather.condition.sunny": "Sunny",
+    "shell.weather.condition.cloudy": "Cloudy",
+    "shell.weather.condition.heat_alert": "Heat alert",
+    "shell.weather.condition.rain_arroyo": "Rain & flash floods",
+    "shell.weather.arroyo.bajo": "Flash floods: Low",
+    "shell.weather.arroyo.moderado": "Flash floods: Moderate",
+    "shell.weather.arroyo.critico": "Flash floods: Critical",
+
+    "shell.lang.label": "Language",
+    "shell.currency.label": "Currency",
+
+    "shell.inclusion.label": "Accessibility & inclusion",
+    "shell.inclusion.active": "Inclusion active",
+    "shell.inclusion.toggleContrast": "Toggle high contrast",
+    "shell.inclusion.routeOn": "Accessible route",
+    "shell.inclusion.contrastOn": "High contrast",
+    "shell.inclusion.largeTextOn": "Large text",
+    "shell.inclusion.voiceOn": "Voice alerts",
+
+    "shell.simulator.open": "Simulator",
+
+    "shell.sync.live": "Live",
+    "shell.sync.local": "Local",
+    "shell.sync.offline": "Offline",
+
+    "shell.notifications.region": "Notifications",
+    "shell.notifications.srHeading": "BQ360 alerts and announcements",
+    "shell.notifications.open": "Open alert center",
+    "shell.notifications.unreadSuffix": "unread",
+    "shell.notifications.unreadSingle": "Unread",
+    "shell.notifications.title": "Alert Center",
+    "shell.notifications.markAllRead": "Mark all as read",
+    "shell.notifications.close": "Close alert center",
+    "shell.notifications.dismissToast": "Dismiss notification",
+    "shell.notifications.empty": "No recent alerts",
+    "shell.notifications.emptyHint":
+      "Crowd, flash-flood, and citizen report alerts will appear here.",
+    "shell.notifications.severity.alta": "High",
+    "shell.notifications.severity.media": "Medium",
+    "shell.notifications.severity.baja": "Low",
+
+    "shell.notify.scenarioUpdated": "Scenario updated",
+    "shell.notify.newReport": "New citizen report",
+    "shell.notify.welcomeTitle": "Welcome to BQ360",
+    "shell.notify.welcomeBody":
+      "Live monitoring of crowds, weather, and safe routes in Barranquilla.",
+    "shell.notify.highContrastOn": "High contrast mode enabled",
+    "shell.notify.highContrastOff": "High contrast mode disabled",
+  },
+  pt: {
+    "shell.brand": "BQ360",
+    "shell.tagline": "Barranquilla 2034 · Cidade Viva",
+    "shell.title": "BQ360 · Barranquilla 2034",
+    "shell.subtitle": "Lotação ao vivo, rotas alternativas e serviços cidadãos",
+    "shell.close": "Fechar",
+
+    "shell.mode.mundial_2034": "Copa 2034",
+    "shell.mode.legado": "Legado 2034",
+
+    "shell.skipToContent": "Ir para o conteúdo principal",
+    "shell.nav.primary": "Principal",
+    "shell.header.controls": "Controles globais do BQ360",
+
+    "shell.tab.map": "Mapa",
+    "shell.tab.events": "Eventos",
+    "shell.tab.explore": "Explorar",
+    "shell.tab.assistance": "Assistência",
+
+    "shell.tab.title.map": "Mapa e Rotas",
+    "shell.tab.title.events": "Radar de Eventos",
+    "shell.tab.title.explore": "Explorar Cidade",
+    "shell.tab.title.assistance": "Assistência e Inclusão",
+
+    "shell.weather.label": "Clima em Barranquilla",
+    "shell.weather.feelsLike": "Sensação",
+    "shell.weather.uv": "UV",
+    "shell.weather.simulated": "Simulado",
+    "shell.weather.condition.sunny": "Ensolarado",
+    "shell.weather.condition.cloudy": "Nublado",
+    "shell.weather.condition.heat_alert": "Alerta de calor",
+    "shell.weather.condition.rain_arroyo": "Chuva e enxurradas",
+    "shell.weather.arroyo.bajo": "Enxurradas: Baixo",
+    "shell.weather.arroyo.moderado": "Enxurradas: Moderado",
+    "shell.weather.arroyo.critico": "Enxurradas: Crítico",
+
+    "shell.lang.label": "Idioma",
+    "shell.currency.label": "Moeda",
+
+    "shell.inclusion.label": "Acessibilidade e inclusão",
+    "shell.inclusion.active": "Inclusão ativa",
+    "shell.inclusion.toggleContrast": "Alternar alto contraste",
+    "shell.inclusion.routeOn": "Rota acessível",
+    "shell.inclusion.contrastOn": "Alto contraste",
+    "shell.inclusion.largeTextOn": "Texto grande",
+    "shell.inclusion.voiceOn": "Alertas por voz",
+
+    "shell.simulator.open": "Simulador",
+
+    "shell.sync.live": "Ao Vivo",
+    "shell.sync.local": "Local",
+    "shell.sync.offline": "Sem conexão",
+
+    "shell.notifications.region": "Notificações",
+    "shell.notifications.srHeading": "Alertas e anúncios do BQ360",
+    "shell.notifications.open": "Abrir central de alertas",
+    "shell.notifications.unreadSuffix": "não lidas",
+    "shell.notifications.unreadSingle": "Não lida",
+    "shell.notifications.title": "Central de Alertas",
+    "shell.notifications.markAllRead": "Marcar tudo como lido",
+    "shell.notifications.close": "Fechar central de alertas",
+    "shell.notifications.dismissToast": "Dispensar notificação",
+    "shell.notifications.empty": "Sem alertas recentes",
+    "shell.notifications.emptyHint":
+      "Alertas de lotação, enxurradas e relatos cidadãos aparecerão aqui.",
+    "shell.notifications.severity.alta": "Alta",
+    "shell.notifications.severity.media": "Média",
+    "shell.notifications.severity.baja": "Baixa",
+
+    "shell.notify.scenarioUpdated": "Cenário atualizado",
+    "shell.notify.newReport": "Novo relato cidadão",
+    "shell.notify.welcomeTitle": "Bem-vindo ao BQ360",
+    "shell.notify.welcomeBody":
+      "Monitoramento ao vivo de lotação, clima e rotas seguras em Barranquilla.",
+    "shell.notify.highContrastOn": "Modo de alto contraste ativado",
+    "shell.notify.highContrastOff": "Modo de alto contraste desativado",
+  },
+  fr: {
+    "shell.brand": "BQ360",
+    "shell.tagline": "Barranquilla 2034 · Ville Vivante",
+    "shell.title": "BQ360 · Barranquilla 2034",
+    "shell.subtitle": "Affluence en direct, itinéraires alternatifs et services citoyens",
+    "shell.close": "Fermer",
+
+    "shell.mode.mundial_2034": "Mondial 2034",
+    "shell.mode.legado": "Héritage 2034",
+
+    "shell.skipToContent": "Aller au contenu principal",
+    "shell.nav.primary": "Principale",
+    "shell.header.controls": "Contrôles globaux BQ360",
+
+    "shell.tab.map": "Carte",
+    "shell.tab.events": "Événements",
+    "shell.tab.explore": "Explorer",
+    "shell.tab.assistance": "Assistance",
+
+    "shell.tab.title.map": "Carte et Itinéraires",
+    "shell.tab.title.events": "Radar Événements",
+    "shell.tab.title.explore": "Explorer la Ville",
+    "shell.tab.title.assistance": "Assistance et Inclusion",
+
+    "shell.weather.label": "Météo à Barranquilla",
+    "shell.weather.feelsLike": "Ressenti",
+    "shell.weather.uv": "UV",
+    "shell.weather.simulated": "Simulé",
+    "shell.weather.condition.sunny": "Ensoleillé",
+    "shell.weather.condition.cloudy": "Nuageux",
+    "shell.weather.condition.heat_alert": "Alerte chaleur",
+    "shell.weather.condition.rain_arroyo": "Pluie et arroyos",
+    "shell.weather.arroyo.bajo": "Arroyos : Faible",
+    "shell.weather.arroyo.moderado": "Arroyos : Modéré",
+    "shell.weather.arroyo.critico": "Arroyos : Critique",
+
+    "shell.lang.label": "Langue",
+    "shell.currency.label": "Devise",
+
+    "shell.inclusion.label": "Accessibilité et inclusion",
+    "shell.inclusion.active": "Inclusion active",
+    "shell.inclusion.toggleContrast": "Activer ou désactiver le contraste élevé",
+    "shell.inclusion.routeOn": "Itinéraire accessible",
+    "shell.inclusion.contrastOn": "Contraste élevé",
+    "shell.inclusion.largeTextOn": "Grand texte",
+    "shell.inclusion.voiceOn": "Alertes vocales",
+
+    "shell.simulator.open": "Simulateur",
+
+    "shell.sync.live": "En Direct",
+    "shell.sync.local": "Local",
+    "shell.sync.offline": "Hors ligne",
+
+    "shell.notifications.region": "Notifications",
+    "shell.notifications.srHeading": "Alertes et annonces BQ360",
+    "shell.notifications.open": "Ouvrir le centre d'alertes",
+    "shell.notifications.unreadSuffix": "non lues",
+    "shell.notifications.unreadSingle": "Non lue",
+    "shell.notifications.title": "Centre d'Alertes",
+    "shell.notifications.markAllRead": "Tout marquer comme lu",
+    "shell.notifications.close": "Fermer le centre d'alertes",
+    "shell.notifications.dismissToast": "Ignorer la notification",
+    "shell.notifications.empty": "Aucune alerte récente",
+    "shell.notifications.emptyHint":
+      "Les alertes d'affluence, d'arroyos et les signalements citoyens apparaîtront ici.",
+    "shell.notifications.severity.alta": "Élevée",
+    "shell.notifications.severity.media": "Moyenne",
+    "shell.notifications.severity.baja": "Faible",
+
+    "shell.notify.scenarioUpdated": "Scénario mis à jour",
+    "shell.notify.newReport": "Nouveau signalement citoyen",
+    "shell.notify.welcomeTitle": "Bienvenue sur BQ360",
+    "shell.notify.welcomeBody":
+      "Suivi en direct de l'affluence, de la météo et des itinéraires sûrs à Barranquilla.",
+    "shell.notify.highContrastOn": "Mode contraste élevé activé",
+    "shell.notify.highContrastOff": "Mode contraste élevé désactivé",
+  },
+};

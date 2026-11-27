@@ -1,6 +1,13 @@
 import type { LocalizedText } from "@/types/bq360";
 
 export const exploreDict = {
+  "app.city": { es: "Barranquilla", en: "Barranquilla", pt: "Barranquilla", fr: "Barranquilla" },
+  "footer.note": {
+    es: "Información de referencia. Confirma los detalles antes de visitar.",
+    en: "Reference information. Confirm details before visiting.",
+    pt: "Informações de referência. Confirme os detalhes antes da visita.",
+    fr: "Informations indicatives. Vérifiez les détails avant votre visite.",
+  },
   "app.name": { es: "BQ360", en: "BQ360", pt: "BQ360", fr: "BQ360" },
   "app.tagline": {
     es: "Barranquilla 2034 y legado ciudadano",
