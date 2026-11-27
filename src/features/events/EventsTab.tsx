@@ -1,91 +1,144 @@
 "use client";
 
-// Archivo exclusivo de Dev 3 — Stub inicial Fase 0 (alineado a DESIGN.md)
-import { CalendarDays, Navigation } from "lucide-react";
+import { useMemo } from "react";
+import { CITY_EVENTS, type EventInfo, type EventsLang } from "@/data/events";
+import { FEATURED_EVENT_IDS, getScenario } from "@/data/scenarios";
+import { getEventsCopy } from "@/i18n/events";
 import { useBQ360 } from "@/context/BQ360Context";
-import { CITY_EVENTS } from "@/data/events";
+import type { BQ360ContextValue, SimulationState, WeatherState } from "@/types/bq360";
+import { EventCard } from "./EventCard";
+import styles from "./events.module.css";
 
-export default function EventsTab() {
-  const { simulation, navigateToRoute, lang, t } = useBQ360();
+export type EventsSimulation = SimulationState;
+export type EventWeather = WeatherState;
 
-  const visibleEvents = CITY_EVENTS.filter((evt) => evt.mode === simulation.mode);
-  const sampleEvent = visibleEvents[0] ?? CITY_EVENTS[0];
+export type EventsTabProps = {
+  simulation?: SimulationState;
+  weather?: WeatherState;
+  lang?: EventsLang;
+  accessibleRoute?: boolean;
+  events?: EventInfo[];
+  onNavigate?: BQ360ContextValue["navigateToRoute"];
+};
+
+function getWeatherLabel(weather: EventWeather, copy: ReturnType<typeof getEventsCopy>) {
+  if (weather.condition === "heat_alert") return copy.weatherHeat;
+  if (weather.condition === "rain_arroyo") {
+    const risk = weather.arroyoRisk ?? "critico";
+    const riskLabel = risk === "critico" ? copy.arroyoCritical : risk === "moderado" ? copy.arroyoModerate : copy.arroyoLow;
+    return `${copy.weatherRain} · ${riskLabel}`;
+  }
+  return weather.condition === "cloudy" ? copy.weatherCloudy : copy.weatherSunny;
+}
+
+function estimateAttendance(event: EventInfo, simulation: EventsSimulation) {
+  const projected = Math.round(event.baseAttendance * simulation.crowdMultiplier);
+  return Math.max(0, Math.min(projected, Math.round(event.capacity * 1.1)));
+}
+
+export default function EventsTab({
+  simulation,
+  weather,
+  lang,
+  accessibleRoute,
+  events,
+  onNavigate,
+}: EventsTabProps) {
+  const context = useBQ360();
+  const activeSimulation = simulation ?? context.simulation;
+  const currentWeather = weather ?? context.weather;
+  const activeLang = lang ?? context.lang;
+  const routeAccess = accessibleRoute ?? context.accessibility.accessibleRoute;
+  const eventData = events ?? CITY_EVENTS;
+  const navigate = onNavigate ?? context.navigateToRoute;
+  const copy = getEventsCopy(activeLang);
+  const scenario = getScenario(activeSimulation.scenarioId);
+  const currentEvents = useMemo(
+    () => eventData.filter((event) => event.mode === activeSimulation.mode).map((event) => ({
+      event,
+      attendance: estimateAttendance(event, activeSimulation),
+    })).sort((a, b) => b.attendance / b.event.capacity - a.attendance / a.event.capacity),
+    [eventData, activeSimulation],
+  );
+
+  const totalAttendance = currentEvents.reduce((sum, item) => sum + item.attendance, 0);
+  const totalCapacity = currentEvents.reduce((sum, item) => sum + item.event.capacity, 0);
+  const occupancy = totalCapacity ? Math.round((totalAttendance / totalCapacity) * 100) : 0;
+  const modeLabel = activeSimulation.mode === "mundial_2034" ? copy.world : copy.legacy;
+  const weatherLabel = getWeatherLabel({
+    ...currentWeather,
+    condition: activeSimulation.weatherOverride ?? currentWeather.condition,
+    arroyoRisk: activeSimulation.weatherOverride === "rain_arroyo" ? "critico" : currentWeather.arroyoRisk,
+  }, copy);
+  const featuredEventId = FEATURED_EVENT_IDS[scenario.id];
+  const featuredEvent = currentEvents.find(({ event }) => event.id === featuredEventId)?.event;
 
   return (
-    <section
-      className="flex flex-col gap-4 p-4"
-      aria-label={t("events.stub.title")}
-    >
-      <header className="flex items-start gap-3 pb-1">
-        <span
-          aria-hidden="true"
-          className="bq-icon-circle mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-bq-red text-white"
-        >
-          <CalendarDays className="h-5 w-5" strokeWidth={2} absoluteStrokeWidth />
-        </span>
-        <div className="min-w-0">
-          <p className="text-[0.6875rem] font-bold uppercase tracking-wider text-bq-red">
-            {t(`shell.mode.${simulation.mode}`)}
-          </p>
-          <h2 className="mt-0.5 text-lg font-extrabold leading-tight tracking-tight text-bq-navy">
-            {t("events.stub.title")}
-          </h2>
-          <p className="mt-1 text-xs leading-relaxed text-bq-text">
-            {t("events.stub.subtitle")}
-          </p>
-        </div>
-      </header>
+    <section className={styles.page} aria-labelledby="events-title">
+      <div className={styles.container}>
+        <header className={styles.header}>
+          <div>
+            <div className={styles.eyebrow}><span aria-hidden="true">◉</span>{copy.eyebrow}</div>
+            <h1 id="events-title" className={styles.title}>{copy.title}</h1>
+            <p className={styles.intro}>{copy.intro}</p>
+          </div>
+          <div className={`${styles.modeBadge} ${activeSimulation.mode === "legado" ? styles.modeBadgeLegacy : ""}`}>
+            <span className={styles.modeDot} />{modeLabel}
+          </div>
+        </header>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bq-surface-card rounded-2xl p-3.5">
-          <p className="text-[0.6875rem] font-bold uppercase tracking-wider text-bq-muted">
-            {t("events.stub.mode")}
-          </p>
-          <p className="mt-1.5 text-sm font-bold text-bq-navy">
-            {t(`shell.mode.${simulation.mode}`)}
-          </p>
+        <section className={styles.summary} aria-label={copy.cityStatus} aria-live="polite">
+          <div className={styles.summaryMain}>
+            <div className={styles.summaryIcon} aria-hidden="true">◉</div>
+            <div>
+              <p>{copy.cityStatus}</p>
+              <strong>{occupancy}<small>%</small></strong>
+            </div>
+            <div className={styles.summaryMeta}>
+              <span>{totalAttendance.toLocaleString(activeLang === "es" ? "es-CO" : activeLang === "pt" ? "pt-BR" : activeLang === "fr" ? "fr-FR" : "en-US")} {copy.people}</span>
+              <span>{currentEvents.length} {copy.activeEvents}</span>
+            </div>
+          </div>
+          <div className={styles.summarySide}>
+            <span className={styles.simulatedTag}><span aria-hidden="true">◷</span>{copy.simulated}</span>
+            <span className={styles.scenarioNow}>{scenario.label[activeLang] || scenario.label.es}</span>
+          </div>
+        </section>
+
+        {featuredEvent && activeSimulation.scenarioId !== "normal" && (
+          <div className={styles.scenarioBanner}>
+            <span className={styles.bannerIcon} aria-hidden="true">⚑</span>
+            <div><strong>{scenario.label[activeLang] || scenario.label.es}</strong><span>{scenario.summary[activeLang] || scenario.summary.es}</span></div>
+            <span className={styles.bannerArrow} aria-hidden="true">→</span>
+          </div>
+        )}
+
+        <div className={styles.listHeading}>
+          <div><h2>{modeLabel}</h2><p>{currentEvents.length} {currentEvents.length === 1 ? copy.eventLabel : copy.eventLabelPlural}</p></div>
+          <span className={styles.sortHint}>{copy.occupancy} ↓</span>
         </div>
 
-        <div className="bq-surface-card rounded-2xl p-3.5">
-          <p className="text-[0.6875rem] font-bold uppercase tracking-wider text-bq-muted">
-            {t("events.stub.count")}
-          </p>
-          <p className="mt-1.5 text-base font-extrabold tabular-nums text-bq-green">
-            {visibleEvents.length} / {CITY_EVENTS.length}
-          </p>
-        </div>
+        {currentEvents.length ? (
+          <div className={styles.eventGrid}>
+            {currentEvents.map(({ event, attendance }) => (
+              <EventCard
+                key={event.id}
+                event={event}
+                lang={activeLang}
+                copy={copy}
+                attendance={attendance}
+                weatherLabel={weatherLabel}
+                accessibleRoute={routeAccess}
+                onNavigate={navigate}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className={styles.emptyState}>{copy.noEvents}</div>
+        )}
+
+        <p className={styles.disclaimer}><span aria-hidden="true">i</span>{copy.sourceNote}</p>
       </div>
-
-      {sampleEvent && (
-        <article className="bq-surface-card rounded-2xl p-4">
-          <h3 className="text-sm font-bold leading-snug text-bq-navy">
-            {sampleEvent.name[lang]}
-          </h3>
-          <p className="mt-1 text-xs leading-relaxed text-bq-text">
-            {sampleEvent.venue} · {sampleEvent.schedule}
-          </p>
-          {/* Optical alignment (better-ui): 2px less padding on leading icon side */}
-          <button
-            type="button"
-            onClick={() =>
-              navigateToRoute({
-                lat: sampleEvent.coords.lat,
-                lng: sampleEvent.coords.lng,
-                label: sampleEvent.name[lang],
-              })
-            }
-            className="bq-touch-target mt-3 inline-flex min-h-10 items-center gap-2 rounded-xl bg-bq-navy pe-4 ps-3.5 py-2 text-xs font-bold text-white transition-[background-color,opacity] duration-100 hover:bg-bq-navy-deep active:opacity-85"
-          >
-            <Navigation
-              className="h-3.5 w-3.5 shrink-0"
-              strokeWidth={2.25}
-              absoluteStrokeWidth
-              aria-hidden="true"
-            />
-            <span>{t("events.stub.routeCta")}</span>
-          </button>
-        </article>
-      )}
     </section>
   );
 }

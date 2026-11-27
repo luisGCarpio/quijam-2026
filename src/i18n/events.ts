@@ -1,69 +1,41 @@
-// Archivo exclusivo de Dev 3 — Stub inicial Fase 0
-import type { TranslationDict } from "@/types/bq360";
+import type { Lang, TranslationDict } from "@/types/bq360";
 
-export const eventsDict: TranslationDict = {
+const dictionary = {
   es: {
-    "events.stub.title": "Radar de Eventos y Aforo",
-    "events.stub.subtitle": "Módulo en construcción por Dev 3 (Eventos Mundial 2034 / Legado)",
-    "events.stub.mode": "Modo activo",
-    "events.stub.count": "Eventos visibles",
-    "events.stub.routeCta": "Ir sin aglomeración",
-    "simulator.title": "Simulador de Eventos en Vivo",
-    "simulator.subtitle": "Controla escenarios de demostración y sincronización en tiempo real.",
-    "simulator.sync": "En Vivo (Sync)",
-    "simulator.local": "Modo Local",
-    "simulator.syncHint": "Los cambios se transmiten a todos los dispositivos conectados vía Supabase.",
-    "simulator.localHint": "Solo afecta a este dispositivo sin modificar la demo global.",
-    "simulator.modeLabel": "Horizonte de ciudad",
-    "simulator.scenariosLabel": "Escenarios rápidos",
-    "simulator.close": "Cerrar simulador",
+    eyebrow: "Radar ciudadano", title: "Eventos y aforo", intro: "Consulta escenarios de ocupación y encuentra una mejor forma de llegar.",
+    world: "Mundial 2034", legacy: "Modo legado", cityStatus: "Aforo estimado en eventos", activeEvents: "eventos activos", people: "personas", capacity: "capacidad", occupancy: "ocupación", simulated: "Datos simulados",
+    normal: "Normal", high: "Alta", critical: "Crítica", accessible: "Acceso inclusivo", accessUnknown: "Acceso por confirmar", weatherHeat: "Alerta de calor", weatherRain: "Lluvia / arroyo", weatherCloudy: "Nublado", weatherSunny: "Sin alerta", arroyoLow: "Riesgo bajo", arroyoModerate: "Riesgo moderado", arroyoCritical: "Riesgo crítico", schedule: "Hora", goThere: "Ir sin aglomeración", directions: "Ver indicaciones", noEvents: "No hay eventos en este modo.", eventLabel: "evento", eventLabelPlural: "eventos", sourceNote: "Aforo y condiciones de demostración; no son datos oficiales ni en vivo.",
+    simulatorTitle: "Simulador de eventos", simulatorIntro: "Activa un escenario para ver cómo cambian el aforo y las alertas.", close: "Cerrar simulador", liveSync: "En Vivo (Sync)", localMode: "Modo Local", syncDescription: "Los cambios se comparten con los dispositivos conectados.", localDescription: "Los cambios afectan solo a esta sesión.", modeTitle: "Horizonte de ciudad", chooseScenario: "Escenarios de demostración", intensity: "Intensidad de aforo", intensityHelp: "Ajusta la presión estimada de público.", percent: "intensidad", simulatedCondition: "Condición simulada", scenarioApplied: "Escenario actualizado", scenarioFailed: "No se pudo actualizar el escenario. Intenta de nuevo.", alertTitle: "Alerta de aforo", thresholdMessage: "La intensidad de aforo superó el 80%.", simulationLabel: "Simulación. No es una alerta oficial.", reset: "Restablecer escenario normal", syncOn: "Sincronización activa", syncOff: "Solo este dispositivo", updating: "Actualizando…", approximate: "Intensidad aproximada",
   },
   en: {
-    "events.stub.title": "Events & Crowd Radar",
-    "events.stub.subtitle": "Module in progress by Dev 3 (World Cup 2034 / Legacy Events)",
-    "events.stub.mode": "Active mode",
-    "events.stub.count": "Visible events",
-    "events.stub.routeCta": "Go crowd-free",
-    "simulator.title": "Live Event Simulator",
-    "simulator.subtitle": "Control demo scenarios and real-time synchronization.",
-    "simulator.sync": "Live (Sync)",
-    "simulator.local": "Local Mode",
-    "simulator.syncHint": "Changes broadcast to all connected devices via Supabase.",
-    "simulator.localHint": "Only affects this device without altering the global demo.",
-    "simulator.modeLabel": "City horizon",
-    "simulator.scenariosLabel": "Quick scenarios",
-    "simulator.close": "Close simulator",
+    eyebrow: "City radar", title: "Events and crowds", intro: "Check crowd scenarios and find a better way to get there.",
+    world: "World Cup 2034", legacy: "Legacy mode", cityStatus: "Estimated event attendance", activeEvents: "active events", people: "people", capacity: "capacity", occupancy: "occupancy", simulated: "Simulated data",
+    normal: "Normal", high: "High", critical: "Critical", accessible: "Inclusive access", accessUnknown: "Access to confirm", weatherHeat: "Heat alert", weatherRain: "Rain / arroyo", weatherCloudy: "Cloudy", weatherSunny: "No alert", arroyoLow: "Low risk", arroyoModerate: "Moderate risk", arroyoCritical: "Critical risk", schedule: "Time", goThere: "Go with less crowding", directions: "Open directions", noEvents: "There are no events in this mode.", eventLabel: "event", eventLabelPlural: "events", sourceNote: "Demonstration attendance and conditions; not official or live data.",
+    simulatorTitle: "Event simulator", simulatorIntro: "Choose a scenario to see how attendance and alerts change.", close: "Close simulator", liveSync: "Live sync", localMode: "Local mode", syncDescription: "Changes are shared with connected devices.", localDescription: "Changes affect this session only.", modeTitle: "City horizon", chooseScenario: "Demo scenarios", intensity: "Crowd intensity", intensityHelp: "Adjust estimated crowd pressure.", percent: "intensity", simulatedCondition: "Simulated condition", scenarioApplied: "Scenario updated", scenarioFailed: "The scenario could not be updated. Try again.", alertTitle: "Crowd alert", thresholdMessage: "Crowd intensity rose above 80%.", simulationLabel: "Simulation. Not an official alert.", reset: "Reset to normal scenario", syncOn: "Sync is on", syncOff: "This device only", updating: "Updating…", approximate: "Approximate intensity",
   },
   pt: {
-    "events.stub.title": "Radar de Eventos e Lotação",
-    "events.stub.subtitle": "Módulo em construção por Dev 3 (Eventos Copa 2034 / Legado)",
-    "events.stub.mode": "Modo ativo",
-    "events.stub.count": "Eventos visíveis",
-    "events.stub.routeCta": "Ir sem aglomeração",
-    "simulator.title": "Simulador de Eventos ao Vivo",
-    "simulator.subtitle": "Controle cenários de demonstração e sincronização em tempo real.",
-    "simulator.sync": "Ao Vivo (Sync)",
-    "simulator.local": "Modo Local",
-    "simulator.syncHint": "As alterações são transmitidas a todos os dispositivos via Supabase.",
-    "simulator.localHint": "Afeta apenas este dispositivo sem alterar a demo global.",
-    "simulator.modeLabel": "Horizonte da cidade",
-    "simulator.scenariosLabel": "Cenários rápidos",
-    "simulator.close": "Fechar simulador",
+    eyebrow: "Radar da cidade", title: "Eventos e lotação", intro: "Consulte cenários de ocupação e encontre uma forma melhor de chegar.",
+    world: "Copa 2034", legacy: "Modo legado", cityStatus: "Público estimado nos eventos", activeEvents: "eventos ativos", people: "pessoas", capacity: "capacidade", occupancy: "ocupação", simulated: "Dados simulados",
+    normal: "Normal", high: "Alta", critical: "Crítica", accessible: "Acesso inclusivo", accessUnknown: "Acesso a confirmar", weatherHeat: "Alerta de calor", weatherRain: "Chuva / arroyo", weatherCloudy: "Nublado", weatherSunny: "Sem alerta", arroyoLow: "Risco baixo", arroyoModerate: "Risco moderado", arroyoCritical: "Risco crítico", schedule: "Horário", goThere: "Ir com menos aglomeração", directions: "Ver direções", noEvents: "Não há eventos neste modo.", eventLabel: "evento", eventLabelPlural: "eventos", sourceNote: "Público e condições demonstrativos; não são dados oficiais nem em tempo real.",
+    simulatorTitle: "Simulador de eventos", simulatorIntro: "Ative um cenário para ver as mudanças na lotação e nos alertas.", close: "Fechar simulador", liveSync: "Sincronização ao vivo", localMode: "Modo local", syncDescription: "As mudanças são compartilhadas com dispositivos conectados.", localDescription: "As mudanças afetam apenas esta sessão.", modeTitle: "Horizonte da cidade", chooseScenario: "Cenários de demonstração", intensity: "Intensidade de público", intensityHelp: "Ajuste a pressão estimada de pessoas.", percent: "intensidade", simulatedCondition: "Condição simulada", scenarioApplied: "Cenário atualizado", scenarioFailed: "Não foi possível atualizar o cenário. Tente novamente.", alertTitle: "Alerta de lotação", thresholdMessage: "A intensidade de público passou de 80%.", simulationLabel: "Simulação. Não é um alerta oficial.", reset: "Restaurar cenário normal", syncOn: "Sincronização ativa", syncOff: "Somente este dispositivo", updating: "Atualizando…", approximate: "Intensidade aproximada",
   },
   fr: {
-    "events.stub.title": "Radar Événements et Affluence",
-    "events.stub.subtitle": "Module en cours par Dev 3 (Événements Mondial 2034 / Héritage)",
-    "events.stub.mode": "Mode actif",
-    "events.stub.count": "Événements visibles",
-    "events.stub.routeCta": "Y aller sans foule",
-    "simulator.title": "Simulateur d'Événements en Direct",
-    "simulator.subtitle": "Pilotez les scénarios de démo et la synchronisation en temps réel.",
-    "simulator.sync": "En Direct (Sync)",
-    "simulator.local": "Mode Local",
-    "simulator.syncHint": "Les changements sont diffusés à tous les appareils via Supabase.",
-    "simulator.localHint": "Affecte uniquement cet appareil sans modifier la démo globale.",
-    "simulator.modeLabel": "Horizon de la ville",
-    "simulator.scenariosLabel": "Scénarios rapides",
-    "simulator.close": "Fermer le simulateur",
+    eyebrow: "Radar urbain", title: "Événements et affluence", intro: "Consultez les scénarios d'affluence et trouvez un meilleur itinéraire.",
+    world: "Coupe du monde 2034", legacy: "Mode héritage", cityStatus: "Affluence estimée aux événements", activeEvents: "événements actifs", people: "personnes", capacity: "capacité", occupancy: "occupation", simulated: "Données simulées",
+    normal: "Normale", high: "Élevée", critical: "Critique", accessible: "Accès inclusif", accessUnknown: "Accès à confirmer", weatherHeat: "Alerte chaleur", weatherRain: "Pluie / arroyo", weatherCloudy: "Nuageux", weatherSunny: "Aucune alerte", arroyoLow: "Risque faible", arroyoModerate: "Risque modéré", arroyoCritical: "Risque critique", schedule: "Horaire", goThere: "Éviter l'affluence", directions: "Voir l'itinéraire", noEvents: "Aucun événement dans ce mode.", eventLabel: "événement", eventLabelPlural: "événements", sourceNote: "Affluence et conditions de démonstration, non officielles et non actualisées.",
+    simulatorTitle: "Simulateur d'événements", simulatorIntro: "Activez un scénario pour observer l'évolution de l'affluence et des alertes.", close: "Fermer le simulateur", liveSync: "Synchronisation en direct", localMode: "Mode local", syncDescription: "Les changements sont partagés avec les appareils connectés.", localDescription: "Les changements ne concernent que cette session.", modeTitle: "Horizon urbain", chooseScenario: "Scénarios de démonstration", intensity: "Intensité de foule", intensityHelp: "Ajustez la pression estimée de la foule.", percent: "intensité", simulatedCondition: "Condition simulée", scenarioApplied: "Scénario mis à jour", scenarioFailed: "Impossible de mettre à jour le scénario. Réessayez.", alertTitle: "Alerte d'affluence", thresholdMessage: "L'intensité de foule a dépassé 80 %.", simulationLabel: "Simulation. Aucune alerte officielle.", reset: "Rétablir le scénario normal", syncOn: "Synchronisation active", syncOff: "Cet appareil uniquement", updating: "Mise à jour…", approximate: "Intensité approximative",
   },
+} as const;
+
+export type EventsCopy = (typeof dictionary)[Lang];
+
+export function getEventsCopy(lang: Lang = "es"): EventsCopy {
+  return dictionary[lang] ?? dictionary.es;
+}
+
+export const eventsDict: TranslationDict = {
+  es: { "events.stub.title": dictionary.es.title, "events.stub.subtitle": dictionary.es.intro, "events.stub.mode": dictionary.es.world, "events.stub.count": dictionary.es.activeEvents, "events.stub.routeCta": dictionary.es.goThere, "simulator.title": dictionary.es.simulatorTitle, "simulator.subtitle": dictionary.es.simulatorIntro, "simulator.sync": dictionary.es.liveSync, "simulator.local": dictionary.es.localMode, "simulator.syncHint": dictionary.es.syncDescription, "simulator.localHint": dictionary.es.localDescription, "simulator.modeLabel": dictionary.es.modeTitle, "simulator.scenariosLabel": dictionary.es.chooseScenario, "simulator.close": dictionary.es.close },
+  en: { "events.stub.title": dictionary.en.title, "events.stub.subtitle": dictionary.en.intro, "events.stub.mode": dictionary.en.world, "events.stub.count": dictionary.en.activeEvents, "events.stub.routeCta": dictionary.en.goThere, "simulator.title": dictionary.en.simulatorTitle, "simulator.subtitle": dictionary.en.simulatorIntro, "simulator.sync": dictionary.en.liveSync, "simulator.local": dictionary.en.localMode, "simulator.syncHint": dictionary.en.syncDescription, "simulator.localHint": dictionary.en.localDescription, "simulator.modeLabel": dictionary.en.modeTitle, "simulator.scenariosLabel": dictionary.en.chooseScenario, "simulator.close": dictionary.en.close },
+  pt: { "events.stub.title": dictionary.pt.title, "events.stub.subtitle": dictionary.pt.intro, "events.stub.mode": dictionary.pt.world, "events.stub.count": dictionary.pt.activeEvents, "events.stub.routeCta": dictionary.pt.goThere, "simulator.title": dictionary.pt.simulatorTitle, "simulator.subtitle": dictionary.pt.simulatorIntro, "simulator.sync": dictionary.pt.liveSync, "simulator.local": dictionary.pt.localMode, "simulator.syncHint": dictionary.pt.syncDescription, "simulator.localHint": dictionary.pt.localDescription, "simulator.modeLabel": dictionary.pt.modeTitle, "simulator.scenariosLabel": dictionary.pt.chooseScenario, "simulator.close": dictionary.pt.close },
+  fr: { "events.stub.title": dictionary.fr.title, "events.stub.subtitle": dictionary.fr.intro, "events.stub.mode": dictionary.fr.world, "events.stub.count": dictionary.fr.activeEvents, "events.stub.routeCta": dictionary.fr.goThere, "simulator.title": dictionary.fr.simulatorTitle, "simulator.subtitle": dictionary.fr.simulatorIntro, "simulator.sync": dictionary.fr.liveSync, "simulator.local": dictionary.fr.localMode, "simulator.syncHint": dictionary.fr.syncDescription, "simulator.localHint": dictionary.fr.localDescription, "simulator.modeLabel": dictionary.fr.modeTitle, "simulator.scenariosLabel": dictionary.fr.chooseScenario, "simulator.close": dictionary.fr.close },
 };
