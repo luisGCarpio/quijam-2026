@@ -1,35 +1,24 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { EVENT_SCENARIOS, type ScenarioDefinition } from "@/data/scenarios";
-import type { EventsLang } from "@/data/events";
+import { EVENT_SCENARIOS, SCENARIOS } from "@/data/scenarios";
 import { getEventsCopy } from "@/i18n/events";
-import type { EventsSimulation } from "@/features/events/EventsTab";
+import { useBQ360 } from "@/context/BQ360Context";
+import type { ScenarioMeta, SimulationState } from "@/types/bq360";
 import styles from "./simulator.module.css";
-
-export type SimulatorDrawerProps = {
-  open: boolean;
-  onClose: () => void;
-  simulation: EventsSimulation;
-  syncEnabled: boolean;
-  onSyncChange: (enabled: boolean) => void;
-  onSimulationChange: (patch: Partial<EventsSimulation>) => void | Promise<void>;
-  onNotify?: (notification: { title: string; body: string; severity: "baja" | "media" | "alta" }) => void;
-  lang?: EventsLang;
-};
 
 function ScenarioTile({
   scenario,
-  lang,
   selected,
   onSelect,
   disabled,
+  lang,
 }: {
-  scenario: ScenarioDefinition;
-  lang: EventsLang;
+  scenario: ScenarioMeta;
   selected: boolean;
   onSelect: () => void;
   disabled: boolean;
+  lang: "es" | "en" | "pt" | "fr";
 }) {
   return (
     <button
@@ -43,8 +32,8 @@ function ScenarioTile({
         {scenario.id === "normal" ? "✓" : scenario.id === "rain_arroyos" ? "☂" : scenario.id === "via40_parade" ? "✺" : "⚑"}
       </span>
       <span className={styles.scenarioText}>
-        <strong>{scenario.name[lang] || scenario.name.es}</strong>
-        <small>{scenario.description[lang] || scenario.description.es}</small>
+        <strong>{scenario.label[lang]}</strong>
+        <small>{scenario.summary[lang]}</small>
       </span>
       <span className={styles.scenarioRadio} aria-hidden="true">{selected ? "●" : "○"}</span>
     </button>
@@ -54,15 +43,15 @@ function ScenarioTile({
 function IntensityControl({
   crowdMultiplier,
   onCommit,
-  copy,
   disabled,
+  lang,
 }: {
   crowdMultiplier: number;
   onCommit: (percent: number) => void;
-  copy: ReturnType<typeof getEventsCopy>;
   disabled: boolean;
+  lang: "es" | "en" | "pt" | "fr";
 }) {
-  const intensityFromState = Math.max(0, Math.min(100, Math.round((crowdMultiplier / 2) * 100)));
+  const intensityFromState = Math.max(0, Math.min(100, Math.round((crowdMultiplier / 3) * 100)));
   const [draft, setDraft] = useState(intensityFromState);
   const [isDragging, setIsDragging] = useState(false);
   const lastCommitted = useRef<number | null>(null);
@@ -79,7 +68,7 @@ function IntensityControl({
   return (
     <div className={styles.intensitySection}>
       <div className={styles.intensityHeading}>
-        <div><strong>{copy.intensity}</strong><p>{copy.intensityHelp}</p></div>
+        <div><strong>{getEventsCopy(lang).intensity}</strong><p>{getEventsCopy(lang).intensityHelp}</p></div>
         <span className={styles.intensityValue}>{current}<small>%</small></span>
       </div>
       <input
@@ -90,8 +79,8 @@ function IntensityControl({
         step="1"
         value={current}
         disabled={disabled}
-        aria-label={copy.intensity}
-        aria-valuetext={`${current}% ${copy.percent}`}
+        aria-label={getEventsCopy(lang).intensity}
+        aria-valuetext={`${current}% ${getEventsCopy(lang).percent}`}
         onChange={(event) => { lastCommitted.current = null; setDraft(Number(event.target.value)); setIsDragging(true); }}
         onPointerUp={commit}
         onKeyUp={commit}
@@ -103,30 +92,26 @@ function IntensityControl({
   );
 }
 
-export default function SimulatorDrawer({
-  open,
-  onClose,
-  simulation,
-  syncEnabled,
-  onSyncChange,
-  onSimulationChange,
-  onNotify,
-  lang = "es",
-}: SimulatorDrawerProps) {
+export default function SimulatorDrawer() {
+  const {
+    lang,
+    simulation,
+    syncEnabled,
+    setSyncEnabled,
+    updateSimulation,
+    simulatorOpen,
+    setSimulatorOpen,
+  } = useBQ360();
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
-  const thresholdNotified = useRef(simulation.crowdMultiplier > 1.6);
   const copy = getEventsCopy(lang);
 
-  if (!open) return null;
-
-  const applyPatch = async (patch: Partial<EventsSimulation>, notice?: { title: string; body: string; severity: "baja" | "media" | "alta" }) => {
+  const applyPatch = async (patch: Partial<SimulationState>) => {
     setSaving(true);
     setMessage("");
     try {
-      await onSimulationChange(patch);
+      await updateSimulation(patch);
       setMessage(copy.scenarioApplied);
-      if (notice) onNotify?.(notice);
     } catch {
       setMessage(copy.scenarioFailed);
     } finally {
@@ -134,41 +119,29 @@ export default function SimulatorDrawer({
     }
   };
 
-  const selectScenario = (scenario: ScenarioDefinition) => {
-    thresholdNotified.current = scenario.crowdMultiplier > 1.6;
+  const selectScenario = (scenario: ScenarioMeta) => {
     void applyPatch({
       scenarioId: scenario.id,
       crowdMultiplier: scenario.crowdMultiplier,
       weatherOverride: scenario.weatherOverride,
-    }, {
-      title: scenario.name[lang] || scenario.name.es,
-      body: scenario.description[lang] || scenario.description.es,
-      severity: scenario.severity,
     });
   };
 
   const changeIntensity = (percent: number) => {
-    const multiplier = Number((percent / 50).toFixed(2));
-    const wasAboveThreshold = thresholdNotified.current;
-    thresholdNotified.current = percent > 80;
-    void applyPatch({ crowdMultiplier: multiplier }, !wasAboveThreshold && percent > 80 ? {
-      title: copy.alertTitle,
-      body: copy.thresholdMessage,
-      severity: "alta",
-    } : undefined);
+    void applyPatch({ crowdMultiplier: Number(((percent / 100) * 3).toFixed(2)) });
   };
 
-  const currentScenario = EVENT_SCENARIOS.find((scenario) => scenario.id === simulation.scenarioId) ?? EVENT_SCENARIOS[0];
+  if (!simulatorOpen) return null;
 
   return (
     <div className={styles.overlay}>
-      <button className={styles.scrim} type="button" aria-label={copy.close} onClick={onClose} />
+      <button className={styles.scrim} type="button" aria-label={copy.close} onClick={() => setSimulatorOpen(false)} />
       <aside
         className={styles.drawer}
         role="dialog"
         aria-modal="true"
         aria-labelledby="simulator-title"
-        onKeyDown={(event) => { if (event.key === "Escape") onClose(); }}
+        onKeyDown={(event) => { if (event.key === "Escape") setSimulatorOpen(false); }}
       >
         <div className={styles.handle} aria-hidden="true"><span /></div>
         <header className={styles.header}>
@@ -178,7 +151,7 @@ export default function SimulatorDrawer({
             <h2 id="simulator-title">{copy.simulatorTitle}</h2>
             <p>{copy.simulatorIntro}</p>
           </div>
-          <button className={styles.closeButton} type="button" aria-label={copy.close} onClick={onClose}>×</button>
+          <button className={styles.closeButton} type="button" aria-label={copy.close} onClick={() => setSimulatorOpen(false)}>×</button>
         </header>
 
         <div className={styles.content}>
@@ -188,10 +161,10 @@ export default function SimulatorDrawer({
               <span>{syncEnabled ? copy.syncOn : copy.syncOff}</span>
             </div>
             <div className={styles.syncToggle} role="group" aria-label={copy.liveSync}>
-              <button type="button" className={syncEnabled ? styles.syncActive : ""} aria-pressed={syncEnabled} onClick={() => onSyncChange(true)}>
+              <button type="button" className={syncEnabled ? styles.syncActive : ""} aria-pressed={syncEnabled} onClick={() => setSyncEnabled(true)}>
                 <span aria-hidden="true">◎</span>{copy.liveSync}
               </button>
-              <button type="button" className={!syncEnabled ? styles.syncActive : ""} aria-pressed={!syncEnabled} onClick={() => onSyncChange(false)}>
+              <button type="button" className={!syncEnabled ? styles.syncActive : ""} aria-pressed={!syncEnabled} onClick={() => setSyncEnabled(false)}>
                 <span aria-hidden="true">◉</span>{copy.localMode}
               </button>
             </div>
@@ -199,44 +172,26 @@ export default function SimulatorDrawer({
           </section>
 
           <section className={styles.modeSection} aria-labelledby="simulator-mode-title">
-            <div className={styles.sectionHeading}>
-              <span className={styles.sectionIndex}>01</span>
-              <h3 id="simulator-mode-title">{copy.modeTitle}</h3>
-            </div>
+            <div className={styles.sectionHeading}><span className={styles.sectionIndex}>01</span><h3 id="simulator-mode-title">{copy.modeTitle}</h3></div>
             <div className={styles.modeSwitch} role="group" aria-label={copy.modeTitle}>
-              <button
-                type="button"
-                className={simulation.mode === "mundial_2034" ? styles.modeActive : ""}
-                aria-pressed={simulation.mode === "mundial_2034"}
-                disabled={saving}
-                onClick={() => void applyPatch({ mode: "mundial_2034" })}
-              >
+              <button type="button" className={simulation.mode === "mundial_2034" ? styles.modeActive : ""} aria-pressed={simulation.mode === "mundial_2034"} disabled={saving} onClick={() => void applyPatch({ mode: "mundial_2034" })}>
                 <span aria-hidden="true">🏆</span>{copy.world}
               </button>
-              <button
-                type="button"
-                className={simulation.mode === "legado" ? styles.modeActive : ""}
-                aria-pressed={simulation.mode === "legado"}
-                disabled={saving}
-                onClick={() => void applyPatch({ mode: "legado" })}
-              >
+              <button type="button" className={simulation.mode === "legado" ? styles.modeActive : ""} aria-pressed={simulation.mode === "legado"} disabled={saving} onClick={() => void applyPatch({ mode: "legado" })}>
                 <span aria-hidden="true">✺</span>{copy.legacy}
               </button>
             </div>
           </section>
 
           <section className={styles.scenariosSection} aria-labelledby="simulator-scenarios-title">
-            <div className={styles.sectionHeading}>
-              <span className={styles.sectionIndex}>02</span>
-              <h3 id="simulator-scenarios-title">{copy.chooseScenario}</h3>
-            </div>
+            <div className={styles.sectionHeading}><span className={styles.sectionIndex}>02</span><h3 id="simulator-scenarios-title">{copy.chooseScenario}</h3></div>
             <div className={styles.scenarioList}>
               {EVENT_SCENARIOS.map((scenario) => (
                 <ScenarioTile
                   key={scenario.id}
                   scenario={scenario}
                   lang={lang}
-                  selected={currentScenario.id === scenario.id}
+                  selected={simulation.scenarioId === scenario.id}
                   onSelect={() => selectScenario(scenario)}
                   disabled={saving}
                 />
@@ -244,13 +199,11 @@ export default function SimulatorDrawer({
             </div>
           </section>
 
-          <IntensityControl crowdMultiplier={simulation.crowdMultiplier} onCommit={changeIntensity} copy={copy} disabled={saving} />
+          <IntensityControl crowdMultiplier={simulation.crowdMultiplier} onCommit={changeIntensity} disabled={saving} lang={lang} />
 
-          <div className={styles.simulationNotice}>
-            <span aria-hidden="true">i</span>{copy.simulationLabel}
-          </div>
+          <div className={styles.simulationNotice}><span aria-hidden="true">i</span>{copy.simulationLabel}</div>
           {message && <p className={styles.statusMessage} role="status">{message}</p>}
-          <button className={styles.resetButton} type="button" disabled={saving} onClick={() => selectScenario(EVENT_SCENARIOS[0])}>
+          <button className={styles.resetButton} type="button" disabled={saving} onClick={() => selectScenario(SCENARIOS.normal)}>
             ↺ {copy.reset}
           </button>
         </div>

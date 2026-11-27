@@ -1,39 +1,24 @@
 "use client";
 
 import { useMemo } from "react";
-import { CITY_EVENTS, type AppMode, type EventInfo, type EventsLang } from "@/data/events";
-import { getScenario, type ScenarioId } from "@/data/scenarios";
+import { CITY_EVENTS, type EventInfo, type EventsLang } from "@/data/events";
+import { FEATURED_EVENT_IDS, getScenario } from "@/data/scenarios";
 import { getEventsCopy } from "@/i18n/events";
+import { useBQ360 } from "@/context/BQ360Context";
+import type { BQ360ContextValue, SimulationState, WeatherState } from "@/types/bq360";
 import { EventCard } from "./EventCard";
 import styles from "./events.module.css";
 
-export type EventsSimulation = {
-  mode: AppMode;
-  scenarioId: ScenarioId;
-  crowdMultiplier: number;
-  weatherOverride: "heat_alert" | "rain_arroyo" | null;
-};
-
-export type EventWeather = {
-  condition: "sunny" | "cloudy" | "heat_alert" | "rain_arroyo";
-  tempC?: number;
-  arroyoRisk?: "bajo" | "moderado" | "critico";
-};
+export type EventsSimulation = SimulationState;
+export type EventWeather = WeatherState;
 
 export type EventsTabProps = {
-  simulation?: EventsSimulation;
-  weather?: EventWeather;
+  simulation?: SimulationState;
+  weather?: WeatherState;
   lang?: EventsLang;
   accessibleRoute?: boolean;
   events?: EventInfo[];
-  onNavigate?: (destination: { lat: number; lng: number; label: string }) => void;
-};
-
-const defaultSimulation: EventsSimulation = {
-  mode: "mundial_2034",
-  scenarioId: "normal",
-  crowdMultiplier: 0.8,
-  weatherOverride: null,
+  onNavigate?: BQ360ContextValue["navigateToRoute"];
 };
 
 function getWeatherLabel(weather: EventWeather, copy: ReturnType<typeof getEventsCopy>) {
@@ -52,33 +37,41 @@ function estimateAttendance(event: EventInfo, simulation: EventsSimulation) {
 }
 
 export default function EventsTab({
-  simulation = defaultSimulation,
-  weather = { condition: "sunny", arroyoRisk: "bajo" },
-  lang = "es",
-  accessibleRoute = false,
-  events = CITY_EVENTS,
+  simulation,
+  weather,
+  lang,
+  accessibleRoute,
+  events,
   onNavigate,
 }: EventsTabProps) {
-  const copy = getEventsCopy(lang);
-  const scenario = getScenario(simulation.scenarioId);
+  const context = useBQ360();
+  const activeSimulation = simulation ?? context.simulation;
+  const currentWeather = weather ?? context.weather;
+  const activeLang = lang ?? context.lang;
+  const routeAccess = accessibleRoute ?? context.accessibility.accessibleRoute;
+  const eventData = events ?? CITY_EVENTS;
+  const navigate = onNavigate ?? context.navigateToRoute;
+  const copy = getEventsCopy(activeLang);
+  const scenario = getScenario(activeSimulation.scenarioId);
   const currentEvents = useMemo(
-    () => events.filter((event) => event.mode === simulation.mode).map((event) => ({
+    () => eventData.filter((event) => event.mode === activeSimulation.mode).map((event) => ({
       event,
-      attendance: estimateAttendance(event, simulation),
+      attendance: estimateAttendance(event, activeSimulation),
     })).sort((a, b) => b.attendance / b.event.capacity - a.attendance / a.event.capacity),
-    [events, simulation],
+    [eventData, activeSimulation],
   );
 
   const totalAttendance = currentEvents.reduce((sum, item) => sum + item.attendance, 0);
   const totalCapacity = currentEvents.reduce((sum, item) => sum + item.event.capacity, 0);
   const occupancy = totalCapacity ? Math.round((totalAttendance / totalCapacity) * 100) : 0;
-  const modeLabel = simulation.mode === "mundial_2034" ? copy.world : copy.legacy;
+  const modeLabel = activeSimulation.mode === "mundial_2034" ? copy.world : copy.legacy;
   const weatherLabel = getWeatherLabel({
-    ...weather,
-    condition: simulation.weatherOverride ?? weather.condition,
-    arroyoRisk: simulation.weatherOverride === "rain_arroyo" ? "critico" : weather.arroyoRisk,
+    ...currentWeather,
+    condition: activeSimulation.weatherOverride ?? currentWeather.condition,
+    arroyoRisk: activeSimulation.weatherOverride === "rain_arroyo" ? "critico" : currentWeather.arroyoRisk,
   }, copy);
-  const featuredEvent = currentEvents.find(({ event }) => event.id === scenario.featuredEventId)?.event;
+  const featuredEventId = FEATURED_EVENT_IDS[scenario.id];
+  const featuredEvent = currentEvents.find(({ event }) => event.id === featuredEventId)?.event;
 
   return (
     <section className={styles.page} aria-labelledby="events-title">
@@ -89,7 +82,7 @@ export default function EventsTab({
             <h1 id="events-title" className={styles.title}>{copy.title}</h1>
             <p className={styles.intro}>{copy.intro}</p>
           </div>
-          <div className={`${styles.modeBadge} ${simulation.mode === "legado" ? styles.modeBadgeLegacy : ""}`}>
+          <div className={`${styles.modeBadge} ${activeSimulation.mode === "legado" ? styles.modeBadgeLegacy : ""}`}>
             <span className={styles.modeDot} />{modeLabel}
           </div>
         </header>
@@ -102,20 +95,20 @@ export default function EventsTab({
               <strong>{occupancy}<small>%</small></strong>
             </div>
             <div className={styles.summaryMeta}>
-              <span>{totalAttendance.toLocaleString(lang === "es" ? "es-CO" : lang === "pt" ? "pt-BR" : lang === "fr" ? "fr-FR" : "en-US")} {copy.people}</span>
+              <span>{totalAttendance.toLocaleString(activeLang === "es" ? "es-CO" : activeLang === "pt" ? "pt-BR" : activeLang === "fr" ? "fr-FR" : "en-US")} {copy.people}</span>
               <span>{currentEvents.length} {copy.activeEvents}</span>
             </div>
           </div>
           <div className={styles.summarySide}>
             <span className={styles.simulatedTag}><span aria-hidden="true">◷</span>{copy.simulated}</span>
-            <span className={styles.scenarioNow}>{scenario.name[lang] || scenario.name.es}</span>
+            <span className={styles.scenarioNow}>{scenario.label[activeLang] || scenario.label.es}</span>
           </div>
         </section>
 
-        {featuredEvent && simulation.scenarioId !== "normal" && (
+        {featuredEvent && activeSimulation.scenarioId !== "normal" && (
           <div className={styles.scenarioBanner}>
             <span className={styles.bannerIcon} aria-hidden="true">⚑</span>
-            <div><strong>{scenario.name[lang] || scenario.name.es}</strong><span>{scenario.description[lang] || scenario.description.es}</span></div>
+            <div><strong>{scenario.label[activeLang] || scenario.label.es}</strong><span>{scenario.summary[activeLang] || scenario.summary.es}</span></div>
             <span className={styles.bannerArrow} aria-hidden="true">→</span>
           </div>
         )}
@@ -131,12 +124,12 @@ export default function EventsTab({
               <EventCard
                 key={event.id}
                 event={event}
-                lang={lang}
+                lang={activeLang}
                 copy={copy}
                 attendance={attendance}
                 weatherLabel={weatherLabel}
-                accessibleRoute={accessibleRoute}
-                onNavigate={onNavigate}
+                accessibleRoute={routeAccess}
+                onNavigate={navigate}
               />
             ))}
           </div>
