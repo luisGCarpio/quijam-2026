@@ -10,3 +10,12 @@ export const CURRENCY_RATES: Record<
   EUR: { rateFromCop: 1 / 4550, symbol: "€", locale: "fr-FR" },
   BRL: { rateFromCop: 1 / 750, symbol: "R$", locale: "pt-BR" },
 };
+
+// Valores simulados en COP para la demostración. No representan tarifas oficiales.
+export const REFERENCE_PRICES = [
+  { key: "transport", priceCop: 3500 },
+  { key: "taxi", priceCop: 9000 },
+  { key: "water", priceCop: 3000 },
+  { key: "lunch", priceCop: 25000 },
+  { key: "craft", priceCop: 20000 },
+] as const;

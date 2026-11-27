@@ -1,45 +1,23 @@
-// Archivo exclusivo de Dev 5 — Stub inicial Fase 0
-import type { TranslationDict } from "@/types/bq360";
+import type { Lang, TranslationDict } from "@/types/bq360";
 
-export const assistanceDict: TranslationDict = {
+const texts = {
   es: {
-    "assistance.stub.title": "Asistencia e Inclusión",
-    "assistance.stub.subtitle": "Módulo en construcción por Dev 5 (Salud, Seguridad, Moneda e Inclusión)",
-    "assistance.stub.currency": "Moneda activa",
-    "assistance.stub.inclusion": "Accesos rápidos de Inclusión",
-    "assistance.stub.accessibleRoute": "Ruta accesible",
-    "assistance.stub.highContrast": "Alto contraste",
-    "assistance.stub.largeText": "Texto grande",
-    "assistance.stub.voiceAlerts": "Alertas por voz",
+    title: "Asistencia", near: "Cerca de", location: "tu ubicación", health: "Salud más cercana", healthHint: "Encuentra atención de salud", securityHint: "Encuentra apoyo policial", security: "Seguridad más cercana", directory: "Ver directorio y teléfonos", directoryNote: "Datos de la Alcaldía. Confirma la disponibilidad antes de desplazarte.", source: "Consultar fuentes oficiales", emergency: "Emergencias 123 · Llamar", healthGroup: "Salud", securityGroup: "Seguridad", km: "km en línea recta", directions: "Cómo llegar", call: "Llamar", empty: "No hay puntos disponibles en esta categoría.", converter: "Conversor de moneda", inclusion: "Centro de Inclusión", currency: "Moneda", amount: "Monto en", invert: "Invertir", invalid: "Ingresa un monto válido", enter: "Ingresa un monto", disclaimer: "Tasas y precios simulados para la demostración, no son tarifas oficiales.", references: "Precios de referencia", transport: "Transmetro", taxi: "Taxi", water: "Agua", lunch: "Almuerzo típico", craft: "Artesanía", accessibleRoute: "Ruta accesible", accessibleDesc: "Solicita una ruta accesible cuando esté disponible.", highContrast: "Alto contraste", contrastDesc: "Aumenta el contraste de la interfaz.", largeText: "Texto grande", textDesc: "Aumenta el tamaño del texto.", voiceAlerts: "Audio-alertas", voiceDesc: "Escucha las notificaciones importantes.", testVoice: "Probar alerta de voz", testTitle: "Alerta de prueba", testBody: "Esta es una alerta de prueba", unavailable: "Lectura por voz no disponible en este navegador."
   },
   en: {
-    "assistance.stub.title": "Assistance & Inclusion",
-    "assistance.stub.subtitle": "Module in progress by Dev 5 (Health, Security, Currency & Inclusion)",
-    "assistance.stub.currency": "Active currency",
-    "assistance.stub.inclusion": "Quick Inclusion toggles",
-    "assistance.stub.accessibleRoute": "Accessible route",
-    "assistance.stub.highContrast": "High contrast",
-    "assistance.stub.largeText": "Large text",
-    "assistance.stub.voiceAlerts": "Voice alerts",
+    title: "Assistance", near: "Near", location: "your location", health: "Nearest health service", healthHint: "Find healthcare nearby", securityHint: "Find police assistance", security: "Nearest security service", directory: "View directory and phone numbers", directoryNote: "City data. Confirm service availability before travelling.", source: "See official sources", emergency: "Emergency 123 · Call", healthGroup: "Health", securityGroup: "Security", km: "km in a straight line", directions: "Get directions", call: "Call", empty: "No locations available in this category.", converter: "Currency converter", inclusion: "Inclusion centre", currency: "Currency", amount: "Amount in", invert: "Swap", invalid: "Enter a valid amount", enter: "Enter an amount", disclaimer: "Exchange rates and prices are simulated for the demonstration, not official rates.", references: "Reference prices", transport: "Transmetro", taxi: "Taxi", water: "Water", lunch: "Local lunch", craft: "Handicraft", accessibleRoute: "Accessible route", accessibleDesc: "Requests an accessible route when available.", highContrast: "High contrast", contrastDesc: "Increases interface contrast.", largeText: "Large text", textDesc: "Increases text size.", voiceAlerts: "Voice alerts", voiceDesc: "Listen to important notifications.", testVoice: "Test voice alert", testTitle: "Test alert", testBody: "This is a test alert", unavailable: "Voice playback is unavailable in this browser."
   },
   pt: {
-    "assistance.stub.title": "Assistência e Inclusão",
-    "assistance.stub.subtitle": "Módulo em construção por Dev 5 (Saúde, Segurança, Moeda e Inclusão)",
-    "assistance.stub.currency": "Moeda ativa",
-    "assistance.stub.inclusion": "Atalhos de Inclusão",
-    "assistance.stub.accessibleRoute": "Rota acessível",
-    "assistance.stub.highContrast": "Alto contraste",
-    "assistance.stub.largeText": "Texto grande",
-    "assistance.stub.voiceAlerts": "Alertas por voz",
+    title: "Assistência", near: "Perto de", location: "sua localização", health: "Saúde mais próxima", healthHint: "Encontre atendimento de saúde", securityHint: "Encontre apoio policial", security: "Segurança mais próxima", directory: "Ver diretório e telefones", directoryNote: "Dados da prefeitura. Confirme a disponibilidade antes de ir.", source: "Consultar fontes oficiais", emergency: "Emergência 123 · Ligar", healthGroup: "Saúde", securityGroup: "Segurança", km: "km em linha reta", directions: "Como chegar", call: "Ligar", empty: "Nenhum local disponível nesta categoria.", converter: "Conversor de moeda", inclusion: "Centro de Inclusão", currency: "Moeda", amount: "Valor em", invert: "Inverter", invalid: "Digite um valor válido", enter: "Digite um valor", disclaimer: "Câmbios e preços simulados para demonstração, não são valores oficiais.", references: "Preços de referência", transport: "Transmetro", taxi: "Táxi", water: "Água", lunch: "Almoço típico", craft: "Artesanato", accessibleRoute: "Rota acessível", accessibleDesc: "Solicita uma rota acessível quando disponível.", highContrast: "Alto contraste", contrastDesc: "Aumenta o contraste da interface.", largeText: "Texto grande", textDesc: "Aumenta o tamanho do texto.", voiceAlerts: "Alertas de voz", voiceDesc: "Ouça notificações importantes.", testVoice: "Testar alerta de voz", testTitle: "Alerta de teste", testBody: "Este é um alerta de teste", unavailable: "A leitura por voz não está disponível neste navegador."
   },
   fr: {
-    "assistance.stub.title": "Assistance et Inclusion",
-    "assistance.stub.subtitle": "Module en cours par Dev 5 (Santé, Sécurité, Devise et Inclusion)",
-    "assistance.stub.currency": "Devise active",
-    "assistance.stub.inclusion": "Raccourcis d'Inclusion",
-    "assistance.stub.accessibleRoute": "Itinéraire accessible",
-    "assistance.stub.highContrast": "Contraste élevé",
-    "assistance.stub.largeText": "Grand texte",
-    "assistance.stub.voiceAlerts": "Alertes vocales",
-  },
-};
+    title: "Assistance", near: "Près de", location: "votre position", health: "Service de santé le plus proche", healthHint: "Trouver des soins à proximité", securityHint: "Trouver une aide policière", security: "Service de sécurité le plus proche", directory: "Voir l’annuaire et les numéros", directoryNote: "Données de la ville. Confirmez la disponibilité avant de vous déplacer.", source: "Consulter les sources officielles", emergency: "Urgences 123 · Appeler", healthGroup: "Santé", securityGroup: "Sécurité", km: "km à vol d’oiseau", directions: "Itinéraire", call: "Appeler", empty: "Aucun lieu disponible dans cette catégorie.", converter: "Convertisseur de devises", inclusion: "Centre d’inclusion", currency: "Devise", amount: "Montant en", invert: "Inverser", invalid: "Saisissez un montant valide", enter: "Saisissez un montant", disclaimer: "Taux et prix simulés pour la démonstration, ils ne sont pas officiels.", references: "Prix indicatifs", transport: "Transmetro", taxi: "Taxi", water: "Eau", lunch: "Repas local", craft: "Artisanat", accessibleRoute: "Itinéraire accessible", accessibleDesc: "Demande un trajet accessible lorsqu’il est disponible.", highContrast: "Contraste élevé", contrastDesc: "Augmente le contraste de l’interface.", largeText: "Grand texte", textDesc: "Augmente la taille du texte.", voiceAlerts: "Alertes vocales", voiceDesc: "Écoutez les notifications importantes.", testVoice: "Tester l’alerte vocale", testTitle: "Alerte de test", testBody: "Ceci est une alerte de test", unavailable: "La lecture vocale est indisponible dans ce navigateur."
+  }
+} satisfies Record<Lang, Record<string, string>>;
+
+export const assistanceTexts = texts;
+export const assistanceDict: TranslationDict = Object.fromEntries(
+  Object.entries(texts).map(([lang, entries]) => [lang, Object.fromEntries(
+    Object.entries(entries).map(([key, value]) => [`assistance.${key}`, value])
+  )])
+) as TranslationDict;
