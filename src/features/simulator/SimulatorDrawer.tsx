@@ -1,281 +1,213 @@
 "use client";
 
-// Archivo exclusivo de Dev 3 — Stub inicial Fase 0 (Simulador funcional alineado a DESIGN.md)
-import { useEffect, useId, useRef } from "react";
-import { Radio, SlidersHorizontal, X } from "lucide-react";
+import { useRef, useState } from "react";
+import { EVENT_SCENARIOS, SCENARIOS } from "@/data/scenarios";
+import { getEventsCopy } from "@/i18n/events";
 import { useBQ360 } from "@/context/BQ360Context";
-import { SCENARIOS } from "@/data/scenarios";
-import type { AppMode, ScenarioId } from "@/types/bq360";
+import type { ScenarioMeta, SimulationState } from "@/types/bq360";
+import styles from "./simulator.module.css";
 
-const SCENARIO_LIST: readonly ScenarioId[] = [
-  "normal",
-  "metropolitano_exit",
-  "rain_arroyos",
-  "malecon_full",
-  "via40_parade",
-];
+function ScenarioTile({
+  scenario,
+  selected,
+  onSelect,
+  disabled,
+  lang,
+}: {
+  scenario: ScenarioMeta;
+  selected: boolean;
+  onSelect: () => void;
+  disabled: boolean;
+  lang: "es" | "en" | "pt" | "fr";
+}) {
+  return (
+    <button
+      type="button"
+      className={`${styles.scenarioTile}${selected ? ` ${styles.scenarioSelected}` : ""}`}
+      aria-pressed={selected}
+      disabled={disabled}
+      onClick={onSelect}
+    >
+      <span className={`${styles.scenarioMarker} ${styles[`marker${scenario.severity[0].toUpperCase()}${scenario.severity.slice(1)}`]}`} aria-hidden="true">
+        {scenario.id === "normal" ? "✓" : scenario.id === "rain_arroyos" ? "☂" : scenario.id === "via40_parade" ? "✺" : "⚑"}
+      </span>
+      <span className={styles.scenarioText}>
+        <strong>{scenario.label[lang]}</strong>
+        <small>{scenario.summary[lang]}</small>
+      </span>
+      <span className={styles.scenarioRadio} aria-hidden="true">{selected ? "●" : "○"}</span>
+    </button>
+  );
+}
 
-const APP_MODES: readonly AppMode[] = ["mundial_2034", "legado"];
+function IntensityControl({
+  crowdMultiplier,
+  onCommit,
+  disabled,
+  lang,
+}: {
+  crowdMultiplier: number;
+  onCommit: (percent: number) => void;
+  disabled: boolean;
+  lang: "es" | "en" | "pt" | "fr";
+}) {
+  const intensityFromState = Math.max(0, Math.min(100, Math.round((crowdMultiplier / 3) * 100)));
+  const [draft, setDraft] = useState(intensityFromState);
+  const [isDragging, setIsDragging] = useState(false);
+  const lastCommitted = useRef<number | null>(null);
+  const current = isDragging ? draft : intensityFromState;
+
+  const commit = () => {
+    setIsDragging(false);
+    if (draft !== intensityFromState && draft !== lastCommitted.current) {
+      lastCommitted.current = draft;
+      onCommit(draft);
+    }
+  };
+
+  return (
+    <div className={styles.intensitySection}>
+      <div className={styles.intensityHeading}>
+        <div><strong>{getEventsCopy(lang).intensity}</strong><p>{getEventsCopy(lang).intensityHelp}</p></div>
+        <span className={styles.intensityValue}>{current}<small>%</small></span>
+      </div>
+      <input
+        className={styles.range}
+        type="range"
+        min="0"
+        max="100"
+        step="1"
+        value={current}
+        disabled={disabled}
+        aria-label={getEventsCopy(lang).intensity}
+        aria-valuetext={`${current}% ${getEventsCopy(lang).percent}`}
+        onChange={(event) => { lastCommitted.current = null; setDraft(Number(event.target.value)); setIsDragging(true); }}
+        onPointerUp={commit}
+        onKeyUp={commit}
+        onBlur={commit}
+        onPointerCancel={commit}
+      />
+      <div className={styles.rangeScale}><span>0%</span><span>80% · alerta</span><span>100%</span></div>
+    </div>
+  );
+}
 
 export default function SimulatorDrawer() {
   const {
+    lang,
     simulation,
     syncEnabled,
     setSyncEnabled,
     updateSimulation,
     simulatorOpen,
     setSimulatorOpen,
-    lang,
-    t,
   } = useBQ360();
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const copy = getEventsCopy(lang);
 
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const closeBtnRef = useRef<HTMLButtonElement>(null);
-  const titleId = useId();
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-
-    if (simulatorOpen && !dialog.open) {
-      dialog.showModal();
-      closeBtnRef.current?.focus();
-    } else if (!simulatorOpen && dialog.open) {
-      dialog.close();
-    }
-  }, [simulatorOpen]);
-
-  // Fallback para navegadores sin soporte nativo de <dialog closedby="any"> (ej. Safari)
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (
-      typeof HTMLDialogElement === "undefined" ||
-      "closedBy" in HTMLDialogElement.prototype
-    ) {
-      return;
-    }
-
-    const isOutside = (event: PointerEvent): boolean => {
-      const rect = dialog.getBoundingClientRect();
-      return (
-        event.clientX < rect.left ||
-        event.clientX > rect.right ||
-        event.clientY < rect.top ||
-        event.clientY > rect.bottom
-      );
-    };
-
-    let pressedOutside = false;
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (
-        event.target !== dialog ||
-        (event.pointerType === "mouse" && event.button !== 0)
-      ) {
-        pressedOutside = false;
-        return;
-      }
-      pressedOutside = isOutside(event);
-    };
-
-    const handlePointerUp = (event: PointerEvent) => {
-      if (pressedOutside && isOutside(event)) {
-        dialog.close();
-      }
-      pressedOutside = false;
-    };
-
-    dialog.addEventListener("pointerdown", handlePointerDown);
-    dialog.addEventListener("pointerup", handlePointerUp);
-
-    return () => {
-      dialog.removeEventListener("pointerdown", handlePointerDown);
-      dialog.removeEventListener("pointerup", handlePointerUp);
-    };
-  }, []);
-
-  const handleClose = () => {
-    const dialog = dialogRef.current;
-    if (dialog) {
-      dialog.returnValue = "";
-    }
-    if (simulatorOpen) {
-      setSimulatorOpen(false);
+  const applyPatch = async (patch: Partial<SimulationState>) => {
+    setSaving(true);
+    setMessage("");
+    try {
+      await updateSimulation(patch);
+      setMessage(copy.scenarioApplied);
+    } catch {
+      setMessage(copy.scenarioFailed);
+    } finally {
+      setSaving(false);
     }
   };
 
+  const selectScenario = (scenario: ScenarioMeta) => {
+    void applyPatch({
+      scenarioId: scenario.id,
+      crowdMultiplier: scenario.crowdMultiplier,
+      weatherOverride: scenario.weatherOverride,
+    });
+  };
+
+  const changeIntensity = (percent: number) => {
+    void applyPatch({ crowdMultiplier: Number(((percent / 100) * 3).toFixed(2)) });
+  };
+
+  if (!simulatorOpen) return null;
+
   return (
-    /* Concentric radius (better-ui): 24px outer (rounded-t-[24px]) with 12px padding (p-3) + 12px cards (rounded-xl) */
-    <dialog
-      ref={dialogRef}
-      aria-labelledby={titleId}
-      onClose={handleClose}
-      {...({ closedby: "any" } as Record<string, string>)}
-      className="bq-overlay-surface m-auto mb-0 max-h-[85dvh] w-full max-w-[440px] overflow-y-auto overscroll-contain rounded-t-[24px] bg-white p-0 text-bq-text open:flex open:flex-col sm:mb-auto sm:rounded-[24px] backdrop:overflow-hidden backdrop:overscroll-contain backdrop:bg-bq-navy-deep/65 backdrop:backdrop-blur-[2px]"
-    >
-      <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-[var(--border-subtle)] bg-white px-4 py-3.5">
-        <div className="flex min-w-0 items-start gap-2.5">
-          <span
-            aria-hidden="true"
-            className="bq-icon-circle mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-bq-yellow text-bq-navy"
-          >
-            <SlidersHorizontal
-              className="h-4 w-4"
-              strokeWidth={2.25}
-              absoluteStrokeWidth
-            />
-          </span>
-          <div className="min-w-0">
-            <h1
-              id={titleId}
-              className="text-base font-extrabold leading-tight tracking-tight text-bq-navy"
-            >
-              {t("simulator.title")}
-            </h1>
-            <p className="mt-0.5 text-xs leading-snug text-bq-text">
-              {t("simulator.subtitle")}
-            </p>
+    <div className={styles.overlay}>
+      <button className={styles.scrim} type="button" aria-label={copy.close} onClick={() => setSimulatorOpen(false)} />
+      <aside
+        className={styles.drawer}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="simulator-title"
+        onKeyDown={(event) => { if (event.key === "Escape") setSimulatorOpen(false); }}
+      >
+        <div className={styles.handle} aria-hidden="true"><span /></div>
+        <header className={styles.header}>
+          <div className={styles.headerIcon} aria-hidden="true">◈</div>
+          <div className={styles.headerCopy}>
+            <span className={styles.kicker}>{copy.simulated}</span>
+            <h2 id="simulator-title">{copy.simulatorTitle}</h2>
+            <p>{copy.simulatorIntro}</p>
           </div>
-        </div>
+          <button className={styles.closeButton} type="button" aria-label={copy.close} onClick={() => setSimulatorOpen(false)}>×</button>
+        </header>
 
-        <form method="dialog">
-          <button
-            ref={closeBtnRef}
-            type="submit"
-            value="close"
-            autoFocus
-            aria-label={t("simulator.close")}
-            className="bq-touch-target inline-flex min-h-9 min-w-9 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-white text-bq-navy transition-colors duration-100 hover:bg-[var(--surface-muted)] active:opacity-80"
-          >
-            <X
-              className="h-4 w-4"
-              strokeWidth={2}
-              absoluteStrokeWidth
-              aria-hidden="true"
-            />
-          </button>
-        </form>
-      </div>
-
-      <div className="flex flex-col gap-4 p-3">
-        <div className="bq-surface-card rounded-xl p-3.5">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span
-                aria-hidden="true"
-                className={`bq-icon-circle inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
-                  syncEnabled
-                    ? "bg-bq-green text-white"
-                    : "bg-[var(--surface-muted)] text-bq-muted"
-                }`}
-              >
-                <Radio
-                  className="h-3.5 w-3.5"
-                  strokeWidth={2}
-                  absoluteStrokeWidth
-                />
-              </span>
-              <span className="text-sm font-bold text-bq-navy">
-                {syncEnabled ? t("simulator.sync") : t("simulator.local")}
-              </span>
+        <div className={styles.content}>
+          <section className={styles.syncSection} aria-label={copy.liveSync}>
+            <div className={styles.syncHeading}>
+              <span className={`${styles.syncIndicator}${syncEnabled ? ` ${styles.syncIndicatorOn}` : ""}`} />
+              <span>{syncEnabled ? copy.syncOn : copy.syncOff}</span>
             </div>
+            <div className={styles.syncToggle} role="group" aria-label={copy.liveSync}>
+              <button type="button" className={syncEnabled ? styles.syncActive : ""} aria-pressed={syncEnabled} onClick={() => setSyncEnabled(true)}>
+                <span aria-hidden="true">◎</span>{copy.liveSync}
+              </button>
+              <button type="button" className={!syncEnabled ? styles.syncActive : ""} aria-pressed={!syncEnabled} onClick={() => setSyncEnabled(false)}>
+                <span aria-hidden="true">◉</span>{copy.localMode}
+              </button>
+            </div>
+            <p className={styles.syncDescription}>{syncEnabled ? copy.syncDescription : copy.localDescription}</p>
+          </section>
 
-            {/* Píldora limpia con área táctil >=44px sin deformar el track */}
-            <button
-              type="button"
-              role="switch"
-              aria-checked={syncEnabled}
-              onClick={() => setSyncEnabled(!syncEnabled)}
-              className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border border-transparent transition-colors duration-150 before:absolute before:-inset-2 before:content-[''] ${
-                syncEnabled ? "bg-bq-green" : "bg-slate-300"
-              }`}
-            >
-              <span className="sr-only">
-                {syncEnabled ? t("simulator.sync") : t("simulator.local")}
-              </span>
-              <span
-                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform duration-150 ${
-                  syncEnabled ? "translate-x-6" : "translate-x-0.5"
-                }`}
-              />
-            </button>
-          </div>
-          <p className="mt-2 text-xs leading-relaxed text-bq-text">
-            {syncEnabled ? t("simulator.syncHint") : t("simulator.localHint")}
-          </p>
-        </div>
+          <section className={styles.modeSection} aria-labelledby="simulator-mode-title">
+            <div className={styles.sectionHeading}><span className={styles.sectionIndex}>01</span><h3 id="simulator-mode-title">{copy.modeTitle}</h3></div>
+            <div className={styles.modeSwitch} role="group" aria-label={copy.modeTitle}>
+              <button type="button" className={simulation.mode === "mundial_2034" ? styles.modeActive : ""} aria-pressed={simulation.mode === "mundial_2034"} disabled={saving} onClick={() => void applyPatch({ mode: "mundial_2034" })}>
+                <span aria-hidden="true">🏆</span>{copy.world}
+              </button>
+              <button type="button" className={simulation.mode === "legado" ? styles.modeActive : ""} aria-pressed={simulation.mode === "legado"} disabled={saving} onClick={() => void applyPatch({ mode: "legado" })}>
+                <span aria-hidden="true">✺</span>{copy.legacy}
+              </button>
+            </div>
+          </section>
 
-        <div>
-          <p className="px-1 text-[0.6875rem] font-bold uppercase tracking-wider text-bq-navy">
-            {t("simulator.modeLabel")}
-          </p>
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            {APP_MODES.map((mode) => {
-              const active = simulation.mode === mode;
-              return (
-                <button
-                  key={mode}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => {
-                    void updateSimulation({ mode });
-                  }}
-                  className={`bq-touch-target min-h-10 rounded-xl border px-3 py-2 text-xs font-bold transition-colors duration-100 active:opacity-85 ${
-                    active
-                      ? "border-bq-navy bg-bq-navy text-white"
-                      : "border-[var(--border-subtle)] bg-white text-bq-navy hover:bg-[var(--surface-muted)]"
-                  }`}
-                >
-                  {t(`shell.mode.${mode}`)}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+          <section className={styles.scenariosSection} aria-labelledby="simulator-scenarios-title">
+            <div className={styles.sectionHeading}><span className={styles.sectionIndex}>02</span><h3 id="simulator-scenarios-title">{copy.chooseScenario}</h3></div>
+            <div className={styles.scenarioList}>
+              {EVENT_SCENARIOS.map((scenario) => (
+                <ScenarioTile
+                  key={scenario.id}
+                  scenario={scenario}
+                  lang={lang}
+                  selected={simulation.scenarioId === scenario.id}
+                  onSelect={() => selectScenario(scenario)}
+                  disabled={saving}
+                />
+              ))}
+            </div>
+          </section>
 
-        <div>
-          <p className="px-1 text-[0.6875rem] font-bold uppercase tracking-wider text-bq-navy">
-            {t("simulator.scenariosLabel")}
-          </p>
-          <div className="mt-2 flex flex-col gap-2">
-            {SCENARIO_LIST.map((scenarioId) => {
-              const scenario = SCENARIOS[scenarioId];
-              const active = simulation.scenarioId === scenarioId;
-              return (
-                <button
-                  key={scenarioId}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => {
-                    void updateSimulation({
-                      scenarioId: scenario.id,
-                      crowdMultiplier: scenario.crowdMultiplier,
-                      weatherOverride: scenario.weatherOverride,
-                    });
-                  }}
-                  className={`flex flex-col rounded-xl border px-3.5 py-2.5 text-left transition-colors duration-100 active:opacity-85 ${
-                    active
-                      ? "border-bq-navy bg-bq-navy text-white"
-                      : "border-[var(--border-subtle)] bg-white text-bq-navy hover:bg-[var(--surface-muted)]"
-                  }`}
-                >
-                  <span className="text-xs font-bold">
-                    {scenario.label[lang]}
-                  </span>
-                  <span
-                    className={`mt-0.5 text-[0.6875rem] leading-snug ${
-                      active ? "text-white/85" : "text-bq-text"
-                    }`}
-                  >
-                    {scenario.summary[lang]}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          <IntensityControl crowdMultiplier={simulation.crowdMultiplier} onCommit={changeIntensity} disabled={saving} lang={lang} />
+
+          <div className={styles.simulationNotice}><span aria-hidden="true">i</span>{copy.simulationLabel}</div>
+          {message && <p className={styles.statusMessage} role="status">{message}</p>}
+          <button className={styles.resetButton} type="button" disabled={saving} onClick={() => selectScenario(SCENARIOS.normal)}>
+            ↺ {copy.reset}
+          </button>
         </div>
-      </div>
-    </dialog>
+      </aside>
+    </div>
   );
 }
