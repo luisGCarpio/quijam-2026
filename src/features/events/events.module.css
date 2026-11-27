@@ -78,15 +78,14 @@
 .disclaimer span { display: grid; width: 14px; height: 14px; flex: 0 0 auto; place-items: center; border: 1px solid #abb8ae; border-radius: 50%; color: #75857a; font-size: 9px; font-weight: 700; }
 .page :where(button, a):focus-visible { outline: 3px solid #e1ae41; outline-offset: 3px; }
 
-@media (max-width: 680px) {
-  .page { padding: 21px 14px 25px; }
-  .header { align-items: flex-start; flex-direction: column; gap: 13px; }
-  .summary { align-items: flex-start; flex-direction: column; padding: 14px; }
-  .summarySide { width: 100%; align-items: flex-start; padding-left: 55px; }
-  .scenarioNow { max-width: 100%; text-align: left; }
-  .eventGrid { grid-template-columns: 1fr; gap: 10px; }
-  .eventCard { padding: 14px; }
-}
+/* El shell limita la pantalla a 440px también en escritorio. */
+.page { padding: 21px 14px 25px; font-family: inherit; }
+.header { align-items: flex-start; flex-direction: column; gap: 13px; }
+.summary { align-items: flex-start; flex-direction: column; padding: 14px; }
+.summarySide { width: 100%; align-items: flex-start; padding-left: 55px; }
+.scenarioNow { max-width: 100%; text-align: left; }
+.eventGrid { grid-template-columns: 1fr; gap: 10px; }
+.eventCard { padding: 14px; }
 
 @media (prefers-reduced-motion: reduce) {
   .eventCard, .progressFill, .routeButton { transition: none; }
