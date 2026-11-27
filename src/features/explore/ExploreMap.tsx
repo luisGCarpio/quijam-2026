@@ -51,6 +51,20 @@ const CATEGORY_COLORS: Record<ExploreCategory, string> = {
   ambiente: "bg-emerald-600",
 };
 
+const CATEGORY_RINGS: Record<ExploreCategory, string> = {
+  turismo: "ring-sky-300",
+  cultura: "ring-fuchsia-300",
+  comercio: "ring-amber-300",
+  ambiente: "ring-emerald-300",
+};
+
+const CATEGORY_ACCENTS: Record<ExploreCategory, string> = {
+  turismo: "border-t-sky-500",
+  cultura: "border-t-fuchsia-500",
+  comercio: "border-t-amber-400",
+  ambiente: "border-t-emerald-600",
+};
+
 function project(lat: number, lng: number) {
   const sin = Math.sin((lat * Math.PI) / 180);
   return {
@@ -395,14 +409,15 @@ export default function ExploreMap({
               event.stopPropagation();
               setSelected(poi);
             }}
-            className={`absolute z-20 flex h-5 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white shadow-md transition hover:scale-110 ${
+            className={`absolute z-20 flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white shadow-md transition hover:scale-110 ${
               CATEGORY_COLORS[poi.category]
-            } ${active ? "ring-4 ring-[#FACC15]" : ""}`}
+            } ${active ? `ring-4 ${CATEGORY_RINGS[poi.category]}` : ""}`}
             style={{ left: screen.left, top: screen.top }}
             aria-label={`${poi.name[lang] || poi.name.es} - ${t(`explore.category.${poi.category}`)}`}
+            aria-pressed={active}
             title={poi.name[lang] || poi.name.es}
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-white" />
+            <span className="h-2 w-2 rounded-full bg-white" />
           </button>
         );
       })}
@@ -482,7 +497,7 @@ export default function ExploreMap({
 
       {activeSelected && !routeRequest ? (
         <div
-          className="absolute inset-x-3 bottom-3 z-30 rounded-2xl bg-white/95 p-3 shadow-xl ring-1 ring-black/5 backdrop-blur"
+          className={`absolute inset-x-3 bottom-3 z-30 rounded-2xl border-t-4 bg-white/95 p-3 shadow-xl ring-1 ring-black/5 backdrop-blur ${CATEGORY_ACCENTS[activeSelected.category]}`}
           onClick={(event) => event.stopPropagation()}
         >
           <div className="flex items-start justify-between gap-3">

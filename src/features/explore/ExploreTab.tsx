@@ -30,7 +30,7 @@ function SkeletonCard() {
 }
 
 export default function ExploreTab() {
-  const { weather, accessibility, t } = useBQ360();
+  const { weather, accessibility, setActiveTab, t } = useBQ360();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<ExploreFilter>("todos");
   const [onlyAccessible, setOnlyAccessible] = useState(false);
@@ -304,6 +304,13 @@ export default function ExploreTab() {
         <div className="mt-2">
           <ExploreMap pois={filtered} height={230} compact />
         </div>
+        <button
+          type="button"
+          onClick={() => setActiveTab("map")}
+          className="mt-2 w-full rounded-xl bg-[#0B2545] px-3 py-2.5 text-[11px] font-extrabold text-white shadow-sm transition hover:bg-[#123A6B] active:scale-[0.99]"
+        >
+          {t("map.openFullMap")}
+        </button>
       </section>
 
       <section aria-busy={loading}>
