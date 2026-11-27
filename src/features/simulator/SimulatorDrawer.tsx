@@ -1,6 +1,6 @@
 "use client";
 
-// Archivo exclusivo de Dev 3 — Stub inicial Fase 0 (Simulador funcional para pruebas E2E de Dev 1)
+// Archivo exclusivo de Dev 3 — Stub inicial Fase 0 (Simulador funcional alineado a DESIGN.md)
 import { useEffect, useId, useRef } from "react";
 import { Radio, SlidersHorizontal, X } from "lucide-react";
 import { useBQ360 } from "@/context/BQ360Context";
@@ -106,22 +106,37 @@ export default function SimulatorDrawer() {
   };
 
   return (
+    /* Concentric radius (better-ui): 24px outer (rounded-t-[24px]) with 12px padding (p-3) + 12px cards (rounded-xl) */
     <dialog
       ref={dialogRef}
       aria-labelledby={titleId}
       onClose={handleClose}
       {...({ closedby: "any" } as Record<string, string>)}
-      className="m-auto mb-0 w-full max-w-[440px] max-h-[85dvh] overflow-y-auto overscroll-contain rounded-t-2xl border border-slate-200 bg-white p-0 text-slate-900 shadow-2xl open:flex open:flex-col sm:mb-auto sm:rounded-2xl backdrop:overflow-hidden backdrop:overscroll-contain backdrop:bg-slate-950/60 backdrop:backdrop-blur-[2px]"
+      className="bq-overlay-surface m-auto mb-0 max-h-[85dvh] w-full max-w-[440px] overflow-y-auto overscroll-contain rounded-t-[24px] bg-white p-0 text-bq-text open:flex open:flex-col sm:mb-auto sm:rounded-[24px] backdrop:overflow-hidden backdrop:overscroll-contain backdrop:bg-bq-navy-deep/65 backdrop:backdrop-blur-[2px]"
     >
-      <div className="flex items-start justify-between gap-3 border-b border-slate-200 px-4 py-3.5">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2 text-[#0B2545]">
-            <SlidersHorizontal className="h-4 w-4 shrink-0" aria-hidden="true" />
-            <h1 id={titleId} className="text-base font-bold leading-tight">
+      <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-[var(--border-subtle)] bg-white px-4 py-3.5">
+        <div className="flex min-w-0 items-start gap-2.5">
+          <span
+            aria-hidden="true"
+            className="bq-icon-circle mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-bq-yellow text-bq-navy"
+          >
+            <SlidersHorizontal
+              className="h-4 w-4"
+              strokeWidth={2.25}
+              absoluteStrokeWidth
+            />
+          </span>
+          <div className="min-w-0">
+            <h1
+              id={titleId}
+              className="text-base font-extrabold leading-tight tracking-tight text-bq-navy"
+            >
               {t("simulator.title")}
             </h1>
+            <p className="mt-0.5 text-xs leading-snug text-bq-text">
+              {t("simulator.subtitle")}
+            </p>
           </div>
-          <p className="mt-1 text-xs text-slate-600">{t("simulator.subtitle")}</p>
         </div>
 
         <form method="dialog">
@@ -131,52 +146,68 @@ export default function SimulatorDrawer() {
             value="close"
             autoFocus
             aria-label={t("simulator.close")}
-            className="bq-touch-target inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-700 hover:bg-slate-100"
+            className="bq-touch-target inline-flex min-h-9 min-w-9 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-white text-bq-navy transition-colors duration-100 hover:bg-[var(--surface-muted)] active:opacity-80"
           >
-            <X className="h-4 w-4" aria-hidden="true" />
+            <X
+              className="h-4 w-4"
+              strokeWidth={2}
+              absoluteStrokeWidth
+              aria-hidden="true"
+            />
           </button>
         </form>
       </div>
 
-      <div className="flex flex-col gap-4 p-4">
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <div className="flex flex-col gap-4 p-3">
+        <div className="bq-surface-card rounded-xl p-3.5">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Radio
-                className={`h-4 w-4 ${syncEnabled ? "text-[#15803D]" : "text-slate-500"}`}
+              <span
                 aria-hidden="true"
-              />
-              <span className="text-sm font-semibold text-slate-900">
+                className={`bq-icon-circle inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
+                  syncEnabled
+                    ? "bg-bq-green text-white"
+                    : "bg-[var(--surface-muted)] text-bq-muted"
+                }`}
+              >
+                <Radio
+                  className="h-3.5 w-3.5"
+                  strokeWidth={2}
+                  absoluteStrokeWidth
+                />
+              </span>
+              <span className="text-sm font-bold text-bq-navy">
                 {syncEnabled ? t("simulator.sync") : t("simulator.local")}
               </span>
             </div>
 
+            {/* Píldora limpia con área táctil >=44px sin deformar el track */}
             <button
               type="button"
               role="switch"
               aria-checked={syncEnabled}
               onClick={() => setSyncEnabled(!syncEnabled)}
-              className={`bq-touch-target relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
-                syncEnabled ? "bg-[#15803D]" : "bg-slate-300"
+              className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border border-transparent transition-colors duration-150 before:absolute before:-inset-2 before:content-[''] ${
+                syncEnabled ? "bg-bq-green" : "bg-slate-300"
               }`}
             >
               <span className="sr-only">
                 {syncEnabled ? t("simulator.sync") : t("simulator.local")}
               </span>
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  syncEnabled ? "translate-x-6" : "translate-x-1"
+                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform duration-150 ${
+                  syncEnabled ? "translate-x-6" : "translate-x-0.5"
                 }`}
               />
             </button>
           </div>
-          <p className="mt-1.5 text-xs text-slate-600">
+          <p className="mt-2 text-xs leading-relaxed text-bq-text">
             {syncEnabled ? t("simulator.syncHint") : t("simulator.localHint")}
           </p>
         </div>
 
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <p className="px-1 text-[0.6875rem] font-bold uppercase tracking-wider text-bq-navy">
             {t("simulator.modeLabel")}
           </p>
           <div className="mt-2 grid grid-cols-2 gap-2">
@@ -190,10 +221,10 @@ export default function SimulatorDrawer() {
                   onClick={() => {
                     void updateSimulation({ mode });
                   }}
-                  className={`rounded-xl border px-3 py-2 text-xs font-semibold transition-colors ${
+                  className={`bq-touch-target min-h-10 rounded-xl border px-3 py-2 text-xs font-bold transition-colors duration-100 active:opacity-85 ${
                     active
-                      ? "border-[#0B2545] bg-[#0B2545] text-white"
-                      : "border-slate-200 bg-white text-slate-800 hover:bg-slate-50"
+                      ? "border-bq-navy bg-bq-navy text-white"
+                      : "border-[var(--border-subtle)] bg-white text-bq-navy hover:bg-[var(--surface-muted)]"
                   }`}
                 >
                   {t(`shell.mode.${mode}`)}
@@ -204,7 +235,7 @@ export default function SimulatorDrawer() {
         </div>
 
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <p className="px-1 text-[0.6875rem] font-bold uppercase tracking-wider text-bq-navy">
             {t("simulator.scenariosLabel")}
           </p>
           <div className="mt-2 flex flex-col gap-2">
@@ -223,16 +254,18 @@ export default function SimulatorDrawer() {
                       weatherOverride: scenario.weatherOverride,
                     });
                   }}
-                  className={`flex flex-col rounded-xl border px-3 py-2.5 text-left transition-colors ${
+                  className={`flex flex-col rounded-xl border px-3.5 py-2.5 text-left transition-colors duration-100 active:opacity-85 ${
                     active
-                      ? "border-[#0B2545] bg-[#0B2545] text-white"
-                      : "border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
+                      ? "border-bq-navy bg-bq-navy text-white"
+                      : "border-[var(--border-subtle)] bg-white text-bq-navy hover:bg-[var(--surface-muted)]"
                   }`}
                 >
-                  <span className="text-xs font-bold">{scenario.label[lang]}</span>
+                  <span className="text-xs font-bold">
+                    {scenario.label[lang]}
+                  </span>
                   <span
-                    className={`mt-0.5 text-[0.6875rem] ${
-                      active ? "text-slate-200" : "text-slate-600"
+                    className={`mt-0.5 text-[0.6875rem] leading-snug ${
+                      active ? "text-white/85" : "text-bq-text"
                     }`}
                   >
                     {scenario.summary[lang]}

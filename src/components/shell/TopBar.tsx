@@ -42,14 +42,42 @@ function WeatherConditionIcon({
 }) {
   switch (condition) {
     case "rain_arroyo":
-      return <CloudRain className={className} aria-hidden="true" />;
+      return (
+        <CloudRain
+          className={className}
+          strokeWidth={2}
+          absoluteStrokeWidth
+          aria-hidden="true"
+        />
+      );
     case "heat_alert":
-      return <Flame className={className} aria-hidden="true" />;
+      return (
+        <Flame
+          className={className}
+          strokeWidth={2}
+          absoluteStrokeWidth
+          aria-hidden="true"
+        />
+      );
     case "cloudy":
-      return <Cloud className={className} aria-hidden="true" />;
+      return (
+        <Cloud
+          className={className}
+          strokeWidth={2}
+          absoluteStrokeWidth
+          aria-hidden="true"
+        />
+      );
     case "sunny":
     default:
-      return <Sun className={className} aria-hidden="true" />;
+      return (
+        <Sun
+          className={className}
+          strokeWidth={2}
+          absoluteStrokeWidth
+          aria-hidden="true"
+        />
+      );
   }
 }
 
@@ -93,20 +121,40 @@ export function TopBar() {
     syncEnabled && supabaseConnected
       ? {
           label: t("shell.sync.live"),
-          className:
-            "border-emerald-300/40 bg-emerald-500/20 text-emerald-100",
-          icon: <Radio className="h-3 w-3 shrink-0" aria-hidden="true" />,
+          dotClass: "bg-bq-green",
+          icon: (
+            <Radio
+              className="h-3 w-3 shrink-0 text-bq-sky"
+              strokeWidth={2}
+              absoluteStrokeWidth
+              aria-hidden="true"
+            />
+          ),
         }
       : syncEnabled && !supabaseConnected
         ? {
             label: t("shell.sync.offline"),
-            className: "border-amber-300/50 bg-amber-500/20 text-amber-100",
-            icon: <WifiOff className="h-3 w-3 shrink-0" aria-hidden="true" />,
+            dotClass: "bg-bq-yellow",
+            icon: (
+              <WifiOff
+                className="h-3 w-3 shrink-0 text-bq-yellow"
+                strokeWidth={2}
+                absoluteStrokeWidth
+                aria-hidden="true"
+              />
+            ),
           }
         : {
             label: t("shell.sync.local"),
-            className: "border-white/20 bg-white/10 text-slate-100",
-            icon: <Database className="h-3 w-3 shrink-0" aria-hidden="true" />,
+            dotClass: "bg-bq-sky",
+            icon: (
+              <Database
+                className="h-3 w-3 shrink-0 text-white/80"
+                strokeWidth={2}
+                absoluteStrokeWidth
+                aria-hidden="true"
+              />
+            ),
           };
 
   const notificationsAriaLabel =
@@ -117,48 +165,74 @@ export function TopBar() {
   return (
     <header
       data-surface="dark"
-      className="shrink-0 bg-[#0B2545] text-white shadow-md"
+      className="relative shrink-0 overflow-hidden bg-bq-navy text-white"
     >
-      {/* Franja tricolor Barranquilla / QUIJAM (decorativa) */}
-      <div className="grid h-1 w-full grid-cols-3" aria-hidden="true">
-        <span className="bg-[#15803D]" />
-        <span className="bg-[#FACC15]" />
-        <span className="bg-[#DC2626]" />
+      {/* Motivo gráfico geométrico sutil QUIJAM (DESIGN.md §3 — decorativo) */}
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 120 84"
+        fill="none"
+        className="pointer-events-none absolute -right-4 -top-2 h-24 w-32 opacity-20"
+      >
+        <circle cx="96" cy="18" r="24" fill="#6AB4E2" />
+        <path
+          d="M64 84C64 56 86 38 114 38"
+          stroke="#F3C922"
+          strokeWidth="12"
+          strokeLinecap="round"
+        />
+        <circle cx="52" cy="20" r="8" fill="#D9323B" />
+        <circle cx="34" cy="48" r="6" fill="#268C44" />
+      </svg>
+
+      {/* Franja superior identidad Barranquilla / QUIJAM (DESIGN.md §1) */}
+      <div className="relative z-10 grid h-1 w-full grid-cols-4" aria-hidden="true">
+        <span className="bg-bq-green" />
+        <span className="bg-bq-yellow" />
+        <span className="bg-bq-red" />
+        <span className="bg-bq-sky" />
       </div>
 
-      <div className="flex flex-col gap-2 px-3 py-2.5">
-        {/* Fila 1: Marca + Modo + Sync + Acciones rápidas */}
-        <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="relative z-10 flex flex-col gap-2 px-4 py-3">
+        {/* Fila 1: Identidad BQ360 + Contexto compacto + Acciones rápidas */}
+        <div className="flex items-center justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-base font-extrabold tracking-tight text-white">
-                {t("shell.brand")}
-              </span>
-              <span className="sr-only"> — {t("shell.tagline")}</span>
-
+            <div className="flex items-center gap-2">
               <span
-                className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[0.6875rem] font-bold leading-tight ${
-                  simulation.mode === "mundial_2034"
-                    ? "border-[#FACC15]/60 bg-[#FACC15]/15 text-[#FEF08A]"
-                    : "border-emerald-300/50 bg-emerald-500/15 text-emerald-100"
-                }`}
+                aria-hidden="true"
+                className="bq-icon-circle inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-bq-yellow text-bq-navy"
               >
                 {simulation.mode === "mundial_2034" ? (
-                  <Trophy className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  <Trophy
+                    className="h-3.5 w-3.5"
+                    strokeWidth={2.25}
+                    absoluteStrokeWidth
+                  />
                 ) : (
-                  <Landmark className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  <Landmark
+                    className="h-3.5 w-3.5"
+                    strokeWidth={2.25}
+                    absoluteStrokeWidth
+                  />
                 )}
-                <span>{t(`shell.mode.${simulation.mode}`)}</span>
               </span>
-            </div>
 
-            <div className="mt-1 flex items-center gap-1.5">
-              <span
-                className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[0.6875rem] font-semibold leading-none ${syncStatus.className}`}
-              >
-                {syncStatus.icon}
-                <span>{syncStatus.label}</span>
-              </span>
+              <div className="min-w-0">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-base font-extrabold leading-none tracking-tight text-white">
+                    {t("shell.brand")}
+                  </span>
+                  <span className="sr-only"> — {t("shell.tagline")}</span>
+                  <span className="truncate text-[0.6875rem] font-bold uppercase tracking-wider text-bq-yellow">
+                    {t(`shell.mode.${simulation.mode}`)}
+                  </span>
+                </div>
+
+                <div className="mt-1 flex items-center gap-1.5 text-[0.6875rem] font-medium leading-none text-white/85">
+                  {syncStatus.icon}
+                  <span className="truncate">{syncStatus.label}</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -176,17 +250,22 @@ export function TopBar() {
                   highContrast: !accessibility.highContrast,
                 })
               }
-              className={`bq-touch-target relative inline-flex min-h-9 min-w-9 items-center justify-center rounded-xl border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FACC15] ${
+              className={`bq-touch-target relative inline-flex min-h-9 min-w-9 items-center justify-center rounded-xl border transition-[background-color,border-color,opacity] duration-100 active:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bq-yellow ${
                 anyInclusionActive
-                  ? "border-[#FACC15] bg-white/20 text-[#FACC15] ring-2 ring-[#FACC15]/70"
+                  ? "border-bq-yellow bg-white/15 text-bq-yellow"
                   : "border-white/20 bg-white/10 text-white hover:bg-white/20"
               }`}
             >
-              <Accessibility className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <Accessibility
+                className="h-4 w-4 shrink-0"
+                strokeWidth={2}
+                absoluteStrokeWidth
+                aria-hidden="true"
+              />
               {anyInclusionActive && (
                 <span
                   aria-hidden="true"
-                  className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#0B2545] bg-[#FACC15]"
+                  className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-bq-navy bg-bq-yellow"
                 />
               )}
             </button>
@@ -195,44 +274,52 @@ export function TopBar() {
               type="button"
               aria-label={notificationsAriaLabel}
               onClick={() => setNotificationDrawerOpen(true)}
-              className="bq-touch-target relative inline-flex min-h-9 min-w-9 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-white transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FACC15]"
+              className="bq-touch-target relative inline-flex min-h-9 min-w-9 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-white transition-[background-color,opacity] duration-100 hover:bg-white/20 active:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bq-yellow"
             >
-              <Bell className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <Bell
+                className="h-4 w-4 shrink-0"
+                strokeWidth={2}
+                absoluteStrokeWidth
+                aria-hidden="true"
+              />
               {unreadCount > 0 && (
                 <span
                   aria-hidden="true"
-                  className="bq-counter-badge absolute -right-1 -top-1 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-[#DC2626] px-1 text-[0.6875rem] font-extrabold leading-none text-white ring-2 ring-[#0B2545]"
+                  className="bq-counter-badge absolute -right-1 -top-1 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-bq-red px-1 text-[0.6875rem] font-extrabold leading-none text-white ring-2 ring-bq-navy"
                 >
                   {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
               )}
             </button>
 
+            {/* Optical alignment (better-ui): centered when icon-only (<380px), 2px less on icon side when text is shown */}
             <button
               type="button"
               onClick={() => setSimulatorOpen(true)}
-              className="bq-touch-target inline-flex min-h-9 min-w-9 items-center justify-center gap-1.5 rounded-xl bg-[#FACC15] px-2.5 text-xs font-extrabold text-[#0B2545] shadow-sm transition-colors hover:bg-[#fde047] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="bq-touch-target inline-flex min-h-9 min-w-9 items-center justify-center gap-1.5 rounded-xl bg-bq-yellow px-2.5 text-xs font-extrabold text-bq-navy transition-[background-color,opacity] duration-100 hover:bg-[#f7d44b] active:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white min-[380px]:pe-3 min-[380px]:ps-2.5"
             >
               <SlidersHorizontal
                 className="h-4 w-4 shrink-0"
+                strokeWidth={2.25}
+                absoluteStrokeWidth
                 aria-hidden="true"
               />
-              <span className="sr-only min-[380px]:not-sr-only">
+              <span className="sr-only whitespace-nowrap min-[380px]:not-sr-only">
                 {t("shell.simulator.open")}
               </span>
             </button>
           </div>
         </div>
 
-        {/* Fila 2: Franja transversal (Clima + Idioma + Moneda) */}
-        <div className="flex flex-wrap items-center justify-between gap-1.5 border-t border-white/15 pt-2">
+        {/* Fila 2: Franja transversal limpia (Clima + Idioma + Moneda) */}
+        <div className="flex items-center justify-between gap-2 border-t border-white/15 pt-2">
           <div
-            className={`inline-flex min-w-0 flex-wrap items-center gap-1.5 rounded-xl border px-2.5 py-1 text-xs ${
+            className={`inline-flex min-w-0 flex-1 items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs ${
               isCriticalArroyo
-                ? "border-red-300/70 bg-[#DC2626]/30 text-white"
+                ? "border-bq-red bg-bq-red text-white"
                 : isHeatAlert
-                  ? "border-amber-300/70 bg-amber-500/25 text-amber-50"
-                  : "border-white/15 bg-white/10 text-slate-100"
+                  ? "border-bq-yellow bg-bq-yellow text-bq-navy"
+                  : "border-white/15 bg-white/10 text-white"
             }`}
           >
             <span className="sr-only">{t("shell.weather.label")}: </span>
@@ -240,61 +327,62 @@ export function TopBar() {
               condition={weather.condition}
               className={`h-3.5 w-3.5 shrink-0 ${
                 isCriticalArroyo
-                  ? "text-red-200"
+                  ? "text-white"
                   : isHeatAlert
-                    ? "text-[#FACC15]"
-                    : "text-[#FACC15]"
+                    ? "text-bq-navy"
+                    : "text-bq-yellow"
               }`}
             />
-            <span className="font-bold tabular-nums">
+            <span className="shrink-0 font-bold tabular-nums">
               {Math.round(weather.tempC)}°C
             </span>
 
-            {weather.arroyoRisk !== "bajo" ? (
-              <span
-                className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[0.6875rem] font-extrabold leading-none ${
-                  weather.arroyoRisk === "critico"
-                    ? "bg-[#DC2626] text-white"
-                    : "bg-[#FACC15] text-[#0B2545]"
-                }`}
-              >
+            <span
+              className={`inline-flex min-w-0 items-center gap-1 truncate text-[0.6875rem] font-bold leading-none ${
+                isHeatAlert ? "text-bq-navy" : "text-white"
+              }`}
+            >
+              {(weather.arroyoRisk !== "bajo" || isHeatAlert) && (
                 <AlertTriangle
-                  className="h-2.5 w-2.5 shrink-0"
+                  className="h-3 w-3 shrink-0"
+                  strokeWidth={2.25}
+                  absoluteStrokeWidth
                   aria-hidden="true"
                 />
-                <span>{t(`shell.weather.arroyo.${weather.arroyoRisk}`)}</span>
+              )}
+              <span className="truncate">
+                {weather.arroyoRisk !== "bajo"
+                  ? t(`shell.weather.arroyo.${weather.arroyoRisk}`)
+                  : t(`shell.weather.condition.${weather.condition}`)}
               </span>
-            ) : (
+            </span>
+
+            {weather.isOverridden ? (
               <span
-                className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[0.6875rem] font-bold leading-none ${
+                className={`bq-weather-sim-badge ml-auto inline-flex shrink-0 items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[0.6875rem] font-bold leading-none ${
                   isHeatAlert
-                    ? "bg-[#FACC15] text-[#0B2545]"
-                    : "bg-white/15 text-white"
+                    ? "bg-bq-navy text-white"
+                    : "bg-bq-navy/35 text-white"
                 }`}
               >
-                {isHeatAlert && (
-                  <AlertTriangle
-                    className="h-2.5 w-2.5 shrink-0"
-                    aria-hidden="true"
-                  />
-                )}
-                <span>{t(`shell.weather.condition.${weather.condition}`)}</span>
+                <Sparkles
+                  className="h-3 w-3 shrink-0"
+                  strokeWidth={2}
+                  absoluteStrokeWidth
+                  aria-hidden="true"
+                />
+                <span className="sr-only whitespace-nowrap min-[410px]:not-sr-only">
+                  {t("shell.weather.simulated")}
+                </span>
+              </span>
+            ) : (
+              <span className="ml-auto hidden shrink-0 whitespace-nowrap text-[0.6875rem] font-medium text-white/80 min-[400px]:inline">
+                {t("shell.weather.uv")} {weather.uvIndex}
               </span>
             )}
-
-            <span className="hidden text-[0.6875rem] font-medium text-slate-200 min-[400px]:inline">
-              {t("shell.weather.uv")} {weather.uvIndex}
-            </span>
             <span className="sr-only">
               {t("shell.weather.feelsLike")} {Math.round(weather.feelsLikeC)}°C
             </span>
-
-            {weather.isOverridden && (
-              <span className="inline-flex items-center gap-0.5 rounded-full border border-[#FACC15]/70 bg-[#0B2545]/80 px-1.5 py-0.5 text-[0.6875rem] font-bold leading-none text-[#FACC15]">
-                <Sparkles className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />
-                <span>{t("shell.weather.simulated")}</span>
-              </span>
-            )}
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5">
@@ -306,13 +394,13 @@ export function TopBar() {
                 id={langId}
                 value={lang}
                 onChange={(event) => setLang(event.target.value as Lang)}
-                className="bq-touch-target min-h-8 rounded-lg border border-white/25 bg-white/10 px-2 py-1 text-xs font-bold text-white transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FACC15]"
+                className="bq-touch-target min-h-8 rounded-lg border border-white/25 bg-white/10 px-2.5 py-1 text-xs font-bold text-white transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bq-yellow"
               >
                 {LANGUAGES.map((item) => (
                   <option
                     key={item.code}
                     value={item.code}
-                    className="bg-white text-slate-900"
+                    className="bg-white text-bq-text"
                   >
                     {item.label}
                   </option>
@@ -330,13 +418,13 @@ export function TopBar() {
                 onChange={(event) =>
                   setCurrency(event.target.value as Currency)
                 }
-                className="bq-touch-target min-h-8 rounded-lg border border-white/25 bg-white/10 px-2 py-1 text-xs font-bold text-white transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FACC15]"
+                className="bq-touch-target min-h-8 rounded-lg border border-white/25 bg-white/10 px-2.5 py-1 text-xs font-bold text-white transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bq-yellow"
               >
                 {CURRENCIES.map((code) => (
                   <option
                     key={code}
                     value={code}
-                    className="bg-white text-slate-900"
+                    className="bg-white text-bq-text"
                   >
                     {code}
                   </option>
@@ -346,36 +434,61 @@ export function TopBar() {
           </div>
         </div>
 
-        {/* Franja de banderas de accesibilidad activas */}
+        {/* Franja condicional de accesibilidad activa */}
         {anyInclusionActive && (
-          <div className="flex flex-wrap items-center gap-1.5 border-t border-white/15 pt-1.5">
-            <span className="inline-flex items-center gap-1 text-[0.6875rem] font-bold uppercase tracking-wide text-[#FACC15]">
-              <Accessibility className="h-3 w-3 shrink-0" aria-hidden="true" />
+          <div className="flex flex-wrap items-center gap-1.5 border-t border-white/15 pt-2">
+            <span className="inline-flex items-center gap-1 text-[0.6875rem] font-bold uppercase tracking-wider text-bq-yellow">
+              <Accessibility
+                className="h-3 w-3 shrink-0"
+                strokeWidth={2.25}
+                absoluteStrokeWidth
+                aria-hidden="true"
+              />
               <span>{t("shell.inclusion.active")}:</span>
             </span>
 
             <ul role="list" className="flex flex-wrap items-center gap-1">
               {accessibility.accessibleRoute && (
-                <li className="inline-flex items-center gap-1 rounded-full border border-[#FACC15]/60 bg-white/15 px-2 py-0.5 text-[0.6875rem] font-semibold leading-tight text-white">
-                  <Route className="h-3 w-3 shrink-0 text-[#FACC15]" aria-hidden="true" />
+                <li className="inline-flex items-center gap-1 rounded-full border border-bq-sky/60 bg-white/10 px-2 py-0.5 text-[0.6875rem] font-semibold leading-tight text-white">
+                  <Route
+                    className="h-3 w-3 shrink-0 text-bq-sky"
+                    strokeWidth={2}
+                    absoluteStrokeWidth
+                    aria-hidden="true"
+                  />
                   <span>{t("shell.inclusion.routeOn")}</span>
                 </li>
               )}
               {accessibility.highContrast && (
-                <li className="inline-flex items-center gap-1 rounded-full border border-[#FACC15]/60 bg-white/15 px-2 py-0.5 text-[0.6875rem] font-semibold leading-tight text-white">
-                  <Contrast className="h-3 w-3 shrink-0 text-[#FACC15]" aria-hidden="true" />
+                <li className="inline-flex items-center gap-1 rounded-full border border-bq-yellow/70 bg-white/10 px-2 py-0.5 text-[0.6875rem] font-semibold leading-tight text-white">
+                  <Contrast
+                    className="h-3 w-3 shrink-0 text-bq-yellow"
+                    strokeWidth={2}
+                    absoluteStrokeWidth
+                    aria-hidden="true"
+                  />
                   <span>{t("shell.inclusion.contrastOn")}</span>
                 </li>
               )}
               {accessibility.largeText && (
-                <li className="inline-flex items-center gap-1 rounded-full border border-[#FACC15]/60 bg-white/15 px-2 py-0.5 text-[0.6875rem] font-semibold leading-tight text-white">
-                  <Type className="h-3 w-3 shrink-0 text-[#FACC15]" aria-hidden="true" />
+                <li className="inline-flex items-center gap-1 rounded-full border border-bq-yellow/70 bg-white/10 px-2 py-0.5 text-[0.6875rem] font-semibold leading-tight text-white">
+                  <Type
+                    className="h-3 w-3 shrink-0 text-bq-yellow"
+                    strokeWidth={2}
+                    absoluteStrokeWidth
+                    aria-hidden="true"
+                  />
                   <span>{t("shell.inclusion.largeTextOn")}</span>
                 </li>
               )}
               {accessibility.voiceAlerts && (
-                <li className="inline-flex items-center gap-1 rounded-full border border-[#FACC15]/60 bg-white/15 px-2 py-0.5 text-[0.6875rem] font-semibold leading-tight text-white">
-                  <Volume2 className="h-3 w-3 shrink-0 text-[#FACC15]" aria-hidden="true" />
+                <li className="inline-flex items-center gap-1 rounded-full border border-bq-sky/60 bg-white/10 px-2 py-0.5 text-[0.6875rem] font-semibold leading-tight text-white">
+                  <Volume2
+                    className="h-3 w-3 shrink-0 text-bq-sky"
+                    strokeWidth={2}
+                    absoluteStrokeWidth
+                    aria-hidden="true"
+                  />
                   <span>{t("shell.inclusion.voiceOn")}</span>
                 </li>
               )}

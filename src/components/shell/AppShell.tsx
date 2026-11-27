@@ -22,11 +22,11 @@ export function AppShell() {
   }, [activeTab]);
 
   return (
-    <div className="min-h-dvh w-full bg-slate-200/80 sm:flex sm:items-center sm:justify-center sm:px-3 sm:py-4">
-      <div className="relative mx-auto flex h-dvh w-full max-w-[440px] flex-col overflow-hidden bg-white sm:h-[min(calc(100dvh-2rem),900px)] sm:rounded-[28px] sm:border sm:border-slate-300 sm:shadow-2xl">
+    <div className="min-h-dvh w-full bg-[var(--surface-backdrop)] sm:flex sm:flex-col sm:items-center sm:justify-center sm:px-4 sm:py-5">
+      <div className="bq-shell-frame relative mx-auto flex h-dvh w-full max-w-[440px] flex-col overflow-hidden bg-white sm:h-[min(calc(100dvh-3.5rem),880px)] sm:rounded-[28px]">
         <a
           href="#main-content"
-          className="visually-hidden fixed left-3 top-3 z-50 rounded-lg bg-[#0B2545] px-3 py-2 text-xs font-bold text-white shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FACC15]"
+          className="visually-hidden fixed left-3 top-3 z-50 rounded-lg bg-bq-navy px-3 py-2 text-xs font-bold text-white shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bq-yellow"
         >
           {t("shell.skipToContent")}
         </a>
@@ -37,7 +37,7 @@ export function AppShell() {
           ref={mainRef}
           id="main-content"
           tabIndex={-1}
-          className="min-h-0 flex-1 overflow-y-auto bg-slate-50/70 focus:outline-none"
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-white focus:outline-none"
         >
           <h1 className="visually-hidden">
             {t(`shell.tab.title.${activeTab}`)}
@@ -54,6 +54,12 @@ export function AppShell() {
         <NotificationDrawer />
         <SimulatorDrawer />
       </div>
+
+      {/* Pie discreto oficial QUIJAM en escritorio (DESIGN.md §2) */}
+      <footer className="mt-2.5 hidden w-full max-w-[440px] items-center justify-between px-2 text-[0.6875rem] font-medium text-bq-muted sm:flex">
+        <span>QUIJAM · Bootcamp de Innovación</span>
+        <span className="font-semibold text-bq-navy">Barranquilla 2034</span>
+      </footer>
     </div>
   );
 }

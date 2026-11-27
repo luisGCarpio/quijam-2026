@@ -45,33 +45,56 @@ function SeverityIcon({
 }) {
   switch (severity) {
     case "alta":
-      return <AlertTriangle className={className} aria-hidden="true" />;
+      return (
+        <AlertTriangle
+          className={className}
+          strokeWidth={2.25}
+          absoluteStrokeWidth
+          aria-hidden="true"
+        />
+      );
     case "media":
-      return <BellRing className={className} aria-hidden="true" />;
+      return (
+        <BellRing
+          className={className}
+          strokeWidth={2.25}
+          absoluteStrokeWidth
+          aria-hidden="true"
+        />
+      );
     case "baja":
     default:
-      return <Info className={className} aria-hidden="true" />;
+      return (
+        <Info
+          className={className}
+          strokeWidth={2.25}
+          absoluteStrokeWidth
+          aria-hidden="true"
+        />
+      );
   }
 }
 
+/* Regla de contraste oficial DESIGN.md §3:
+   blanco sobre #10284B/#268C44/#D9323B; #10284B sobre #FFFFFF/#F3C922/#6AB4E2 */
 const SEVERITY_STYLES: Record<
   Severity,
-  { card: string; badge: string; unreadBorder: string }
+  { badge: string; unreadAccent: string; dot: string }
 > = {
   alta: {
-    card: "border-[#DC2626]/30 bg-red-50/70",
-    badge: "bg-[#DC2626] text-white",
-    unreadBorder: "border-l-4 border-l-[#DC2626]",
+    badge: "bg-bq-red text-white",
+    unreadAccent: "border-l-4 border-l-bq-red",
+    dot: "bg-bq-red",
   },
   media: {
-    card: "border-amber-300 bg-amber-50/70",
-    badge: "bg-[#FACC15] text-[#0B2545]",
-    unreadBorder: "border-l-4 border-l-[#D97706]",
+    badge: "bg-bq-yellow text-bq-navy",
+    unreadAccent: "border-l-4 border-l-bq-yellow",
+    dot: "bg-bq-yellow",
   },
   baja: {
-    card: "border-slate-200 bg-slate-50",
-    badge: "bg-[#0B2545] text-white",
-    unreadBorder: "border-l-4 border-l-[#0B2545]",
+    badge: "bg-bq-sky text-bq-navy",
+    unreadAccent: "border-l-4 border-l-bq-navy",
+    dot: "bg-bq-sky",
   },
 };
 
@@ -168,22 +191,36 @@ export function NotificationDrawer() {
   };
 
   return (
+    /* Concentric radius (better-ui): 24px outer (rounded-t-[24px]) with 12px padding (p-3) + 12px inner cards (rounded-xl) */
     <dialog
       ref={dialogRef}
       aria-labelledby={titleId}
       onClose={handleClose}
       {...({ closedby: "any" } as Record<string, string>)}
-      className="m-auto mb-0 max-h-[85dvh] w-full max-w-[440px] overflow-y-auto overscroll-contain rounded-t-2xl border border-slate-200 bg-white p-0 text-slate-900 shadow-2xl open:flex open:flex-col sm:mb-auto sm:rounded-2xl backdrop:overflow-hidden backdrop:overscroll-contain backdrop:bg-slate-950/60 backdrop:backdrop-blur-[2px]"
+      className="bq-overlay-surface m-auto mb-0 max-h-[85dvh] w-full max-w-[440px] overflow-y-auto overscroll-contain rounded-t-[24px] bg-white p-0 text-bq-text open:flex open:flex-col sm:mb-auto sm:rounded-[24px] backdrop:overflow-hidden backdrop:overscroll-contain backdrop:bg-bq-navy-deep/65 backdrop:backdrop-blur-[2px]"
     >
-      <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-slate-200 bg-white px-4 py-3.5">
+      <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-[var(--border-subtle)] bg-white px-4 py-3.5">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2 text-[#0B2545]">
-            <Bell className="h-4 w-4 shrink-0" aria-hidden="true" />
-            <h1 id={titleId} className="text-base font-bold leading-tight">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Ícono en círculo sólido QUIJAM (DESIGN.md §3) */}
+            <span
+              aria-hidden="true"
+              className="bq-icon-circle inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-bq-navy text-white"
+            >
+              <Bell
+                className="h-4 w-4"
+                strokeWidth={2}
+                absoluteStrokeWidth
+              />
+            </span>
+            <h1
+              id={titleId}
+              className="text-base font-extrabold leading-tight tracking-tight text-bq-navy"
+            >
               {t("shell.notifications.title")}
             </h1>
             {unreadCount > 0 && (
-              <span className="inline-flex items-center rounded-full bg-[#DC2626] px-2 py-0.5 text-[0.6875rem] font-bold leading-none text-white">
+              <span className="inline-flex items-center rounded-full bg-bq-red px-2 py-0.5 text-[0.6875rem] font-bold leading-none text-white">
                 {unreadCount} {t("shell.notifications.unreadSuffix")}
               </span>
             )}
@@ -193,9 +230,14 @@ export function NotificationDrawer() {
             <button
               type="button"
               onClick={markAllNotificationsRead}
-              className="bq-touch-target mt-2 inline-flex min-h-8 items-center gap-1.5 rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-[#0B2545] transition-colors hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0B2545]"
+              className="bq-touch-target mt-2.5 inline-flex min-h-8 items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-muted)] pe-3 ps-2.5 py-1 text-xs font-semibold text-bq-navy transition-colors duration-100 hover:bg-slate-100 active:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bq-navy"
             >
-              <CheckCheck className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              <CheckCheck
+                className="h-3.5 w-3.5 shrink-0"
+                strokeWidth={2}
+                absoluteStrokeWidth
+                aria-hidden="true"
+              />
               <span>{t("shell.notifications.markAllRead")}</span>
             </button>
           )}
@@ -208,26 +250,35 @@ export function NotificationDrawer() {
             value="close"
             autoFocus
             aria-label={t("shell.notifications.close")}
-            className="bq-touch-target inline-flex min-h-9 min-w-9 items-center justify-center rounded-full border border-slate-200 text-slate-700 transition-colors hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0B2545]"
+            className="bq-touch-target inline-flex min-h-9 min-w-9 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-white text-bq-navy transition-colors duration-100 hover:bg-[var(--surface-muted)] active:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bq-navy"
           >
-            <X className="h-4 w-4" aria-hidden="true" />
+            <X
+              className="h-4 w-4"
+              strokeWidth={2}
+              absoluteStrokeWidth
+              aria-hidden="true"
+            />
           </button>
         </form>
       </div>
 
-      <div className="flex-1 p-4">
+      <div className="flex-1 p-3">
         {notifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-10 text-center">
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--surface-muted)] px-4 py-10 text-center">
             <span
               aria-hidden="true"
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-slate-200/80 text-slate-600"
+              className="bq-icon-circle inline-flex h-11 w-11 items-center justify-center rounded-full bg-bq-sky text-bq-navy"
             >
-              <BellOff className="h-5 w-5" />
+              <BellOff
+                className="h-5 w-5"
+                strokeWidth={2}
+                absoluteStrokeWidth
+              />
             </span>
-            <p className="mt-3 text-sm font-bold text-slate-900">
+            <p className="mt-3 text-sm font-bold text-bq-navy">
               {t("shell.notifications.empty")}
             </p>
-            <p className="mt-1 text-xs text-slate-600">
+            <p className="mt-1 max-w-[26ch] text-xs leading-relaxed text-bq-muted">
               {t("shell.notifications.emptyHint")}
             </p>
           </div>
@@ -246,10 +297,8 @@ export function NotificationDrawer() {
               return (
                 <li
                   key={item.id}
-                  className={`rounded-xl border p-3 transition-colors ${
-                    item.read
-                      ? "border-slate-200 bg-white"
-                      : `${style.card} ${style.unreadBorder}`
+                  className={`bq-surface-card rounded-xl p-3.5 ${
+                    item.read ? "opacity-85" : style.unreadAccent
                   }`}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
@@ -263,27 +312,32 @@ export function NotificationDrawer() {
                       <span>{severityLabel}</span>
                     </span>
 
-                    <div className="flex items-center gap-1.5 text-[0.6875rem] font-medium text-slate-600">
+                    <div className="flex items-center gap-2 text-[0.6875rem] font-medium text-bq-muted">
                       {!item.read && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[#0B2545] px-1.5 py-0.5 text-[0.6875rem] font-bold leading-none text-white">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-bq-navy px-2 py-0.5 text-[0.6875rem] font-bold leading-none text-white">
                           <span
                             aria-hidden="true"
-                            className="h-1.5 w-1.5 rounded-full bg-[#FACC15]"
+                            className="h-1.5 w-1.5 rounded-full bg-bq-yellow"
                           />
                           <span>{t("shell.notifications.unreadSingle")}</span>
                         </span>
                       )}
-                      <span className="inline-flex items-center gap-1">
-                        <Clock className="h-3 w-3 shrink-0" aria-hidden="true" />
+                      <span className="inline-flex items-center gap-1 tabular-nums">
+                        <Clock
+                          className="h-3 w-3 shrink-0"
+                          strokeWidth={1.75}
+                          absoluteStrokeWidth
+                          aria-hidden="true"
+                        />
                         <time dateTime={item.timestamp}>{formattedTime}</time>
                       </span>
                     </div>
                   </div>
 
-                  <h2 className="mt-2 text-sm font-bold leading-snug text-slate-900">
+                  <h2 className="mt-2 text-sm font-bold leading-snug text-bq-navy">
                     {item.title}
                   </h2>
-                  <p className="mt-1 text-xs leading-relaxed text-slate-700">
+                  <p className="mt-1 text-xs leading-relaxed text-bq-text">
                     {item.body}
                   </p>
                 </li>

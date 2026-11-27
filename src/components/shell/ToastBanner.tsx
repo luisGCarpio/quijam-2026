@@ -24,30 +24,52 @@ function SeverityIcon({
 }) {
   switch (severity) {
     case "alta":
-      return <AlertTriangle className={className} aria-hidden="true" />;
+      return (
+        <AlertTriangle
+          className={className}
+          strokeWidth={2.25}
+          absoluteStrokeWidth
+          aria-hidden="true"
+        />
+      );
     case "media":
-      return <BellRing className={className} aria-hidden="true" />;
+      return (
+        <BellRing
+          className={className}
+          strokeWidth={2.25}
+          absoluteStrokeWidth
+          aria-hidden="true"
+        />
+      );
     case "baja":
     default:
-      return <Info className={className} aria-hidden="true" />;
+      return (
+        <Info
+          className={className}
+          strokeWidth={2.25}
+          absoluteStrokeWidth
+          aria-hidden="true"
+        />
+      );
   }
 }
 
+/* Regla de contraste oficial DESIGN.md §3 */
 const TOAST_SEVERITY_STYLES: Record<
   Severity,
-  { container: string; badge: string }
+  { accent: string; badge: string }
 > = {
   alta: {
-    container: "border-[#DC2626]/40 border-l-4 border-l-[#DC2626] bg-white",
-    badge: "bg-[#DC2626] text-white",
+    accent: "border-l-4 border-l-bq-red",
+    badge: "bg-bq-red text-white",
   },
   media: {
-    container: "border-amber-300 border-l-4 border-l-[#D97706] bg-white",
-    badge: "bg-[#FACC15] text-[#0B2545]",
+    accent: "border-l-4 border-l-bq-yellow",
+    badge: "bg-bq-yellow text-bq-navy",
   },
   baja: {
-    container: "border-slate-300 border-l-4 border-l-[#0B2545] bg-white",
-    badge: "bg-[#0B2545] text-white",
+    accent: "border-l-4 border-l-bq-navy",
+    badge: "bg-bq-navy text-white",
   },
 };
 
@@ -110,7 +132,7 @@ function ToastCard({
           setIsFocused(false);
         }
       }}
-      className={`pointer-events-auto w-full rounded-xl border p-3 text-slate-900 shadow-lg transition-opacity duration-150 motion-reduce:transition-none ${styles.container}`}
+      className={`bq-overlay-surface pointer-events-auto w-full rounded-xl bg-white p-3 text-bq-text transition-opacity duration-150 motion-reduce:transition-none ${styles.accent}`}
     >
       <div className="flex items-start justify-between gap-2.5">
         <div className="min-w-0 flex-1">
@@ -123,10 +145,10 @@ function ToastCard({
             />
             <span>{severityLabel}</span>
           </span>
-          <p className="mt-1.5 text-xs font-bold leading-snug text-slate-900">
+          <p className="mt-1.5 text-xs font-bold leading-snug text-bq-navy">
             {toast.title}
           </p>
-          <p className="mt-0.5 text-xs leading-relaxed text-slate-700">
+          <p className="mt-0.5 text-xs leading-relaxed text-bq-text">
             {toast.body}
           </p>
         </div>
@@ -136,9 +158,14 @@ function ToastCard({
           type="button"
           aria-label={dismissLabel}
           onClick={() => onManualDismiss(toast.id)}
-          className="bq-touch-target inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-700 transition-colors hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0B2545]"
+          className="bq-touch-target inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-white text-bq-navy transition-colors duration-100 hover:bg-[var(--surface-muted)] active:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bq-navy"
         >
-          <X className="h-4 w-4" aria-hidden="true" />
+          <X
+            className="h-4 w-4"
+            strokeWidth={2}
+            absoluteStrokeWidth
+            aria-hidden="true"
+          />
         </button>
       </div>
     </article>
@@ -351,13 +378,13 @@ export function ToastBanner() {
         {liveAnnouncement}
       </div>
 
-      {/* Contenedor en Top Layer con popover="manual" (sin display incondicional en el host) */}
+      {/* Concentric outer 16px (rounded-2xl) = inner 12px (rounded-xl) + 4px padding (p-1) */}
       <div
         ref={popoverRef}
         id={stackId}
         popover="manual"
         data-open={hasVisibleToasts ? "true" : "false"}
-        className="bq-toast pointer-events-none fixed bottom-[72px] left-0 right-0 top-auto z-40 mx-auto my-0 max-h-[60dvh] w-[min(calc(100vw-1.5rem),416px)] overflow-y-auto rounded-2xl border-0 bg-transparent p-0 text-inherit shadow-none"
+        className="bq-toast pointer-events-none fixed bottom-[76px] left-0 right-0 top-auto z-40 mx-auto my-0 max-h-[60dvh] w-[min(calc(100vw-1.5rem),416px)] overflow-y-auto overscroll-contain rounded-2xl border-0 bg-transparent p-0 text-inherit shadow-none"
       >
         {hasVisibleToasts && (
           <div className="flex flex-col gap-2 p-1">

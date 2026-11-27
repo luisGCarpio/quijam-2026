@@ -8,7 +8,11 @@ import type { TabId } from "@/types/bq360";
 interface NavItem {
   id: TabId;
   labelKey: string;
-  Icon: ComponentType<{ className?: string; strokeWidth?: number }>;
+  Icon: ComponentType<{
+    className?: string;
+    strokeWidth?: number;
+    absoluteStrokeWidth?: boolean;
+  }>;
 }
 
 const NAV_ITEMS: readonly NavItem[] = [
@@ -24,7 +28,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label={t("shell.nav.primary")}
-      className="sticky bottom-0 z-20 shrink-0 border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)]"
+      className="sticky bottom-0 z-20 shrink-0 border-t border-[var(--border-subtle)] bg-white pb-[env(safe-area-inset-bottom)]"
     >
       <ul className="grid grid-cols-4">
         {NAV_ITEMS.map(({ id, labelKey, Icon }) => {
@@ -36,24 +40,28 @@ export function BottomNav() {
                 type="button"
                 aria-current={isActive ? "page" : undefined}
                 onClick={() => setActiveTab(id)}
-                className={`bq-touch-target flex min-h-[56px] w-full flex-col items-center justify-center gap-0.5 border-t-[3px] px-1 py-1.5 text-[0.6875rem] leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#0B2545] ${
+                className={`bq-touch-target flex min-h-[60px] w-full flex-col items-center justify-center gap-1 border-t-[3px] px-1 py-1.5 text-[0.6875rem] leading-tight transition-colors duration-100 active:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-bq-navy ${
                   isActive
-                    ? "border-[#0B2545] bg-[#0B2545]/[0.04] font-bold text-[#0B2545]"
-                    : "border-transparent font-medium text-slate-600 hover:bg-slate-50 hover:text-[#0B2545]"
+                    ? "border-bq-navy font-bold text-bq-navy"
+                    : "border-transparent font-medium text-bq-muted hover:bg-[var(--surface-muted)] hover:text-bq-navy"
                 }`}
               >
+                {/* Medallón sólido QUIJAM en estado activo vs. trazo limpio en inactivo (DESIGN.md §3 + better-ui) */}
                 <span
                   aria-hidden="true"
-                  className={`inline-flex h-7 w-11 items-center justify-center rounded-full transition-colors ${
-                    isActive ? "bg-[#0B2545]/12 text-[#0B2545]" : ""
+                  className={`inline-flex h-7 w-11 items-center justify-center rounded-full transition-colors duration-100 ${
+                    isActive ? "bg-bq-navy text-white" : "text-current"
                   }`}
                 >
                   <Icon
                     className="h-[18px] w-[18px] shrink-0"
-                    strokeWidth={isActive ? 2.4 : 1.85}
+                    strokeWidth={isActive ? 2.25 : 1.75}
+                    absoluteStrokeWidth
                   />
                 </span>
-                <span className="max-w-full truncate">{t(labelKey)}</span>
+                <span className="max-w-full truncate whitespace-nowrap">
+                  {t(labelKey)}
+                </span>
               </button>
             </li>
           );
