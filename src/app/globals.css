@@ -1,18 +1,535 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  /* Barranquilla / QUIJAM 2034 Brand Tokens */
+  --bq-navy: #0B2545;
+  --bq-navy-deep: #071930;
+  --bq-green: #15803D;
+  --bq-yellow: #FACC15;
+  --bq-red: #DC2626;
+  --bq-sky: #38BDF8;
+
+  /* Semantic Surface, Ink, Border & Focus Tokens */
+  --surface-app: #F1F5F9;
+  --surface-card: #FFFFFF;
+  --surface-muted: #F8FAFC;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --border-subtle: #E2E8F0;
+  --focus-ring: #0B2545;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--surface-app);
+  --color-foreground: var(--text-primary);
+  --color-bq-navy: var(--bq-navy);
+  --color-bq-navy-deep: var(--bq-navy-deep);
+  --color-bq-green: var(--bq-green);
+  --color-bq-yellow: var(--bq-yellow);
+  --color-bq-red: var(--bq-red);
+  --color-bq-sky: var(--bq-sky);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
+@layer base {
+  html {
+    background-color: var(--surface-app);
+    color: var(--text-primary);
+  }
+
+  body {
+    background-color: var(--surface-app);
+    color: var(--text-primary);
+    font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  }
+
+  /* Accessible Focus Indicators & Dark-Surface Ring Contrast (WCAG 2.4.7 / 1.4.11)
+     Layered in @layer base so Tailwind v4 focus-visible:outline-* utilities win in default mode */
+  :where(header[class*="bg-[#0B2545]"], header[class*="bg-[#071930]"], [data-surface="dark"]) {
+    --focus-ring: #FACC15;
+  }
+
+  :where(a:any-link, button, select, input, textarea, [tabindex]):focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+/* ============================================================================
+   Large Text Mode (WCAG 1.4.4 Resize Text & 1.4.10 Reflow at 320px)
+   ============================================================================ */
+html[data-text-size="large"] {
+  font-size: 118.75%; /* 19px base — scales rem typography cleanly without breaking 320px reflow */
+}
+
+/* ============================================================================
+   Visually Hidden Utility (Skip Links & Screen-Reader-Only Headings)
+   Opt-out via :focus-within / :active keeps skip links visible on keyboard focus
+   ============================================================================ */
+.visually-hidden:where(:not(:focus-within, :active)) {
+  position: absolute !important;
+  clip-path: inset(50%) !important;
+  overflow: hidden !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  white-space: nowrap !important;
+}
+
+/* ============================================================================
+   Touch Target Sizing on Coarse Pointers (WCAG 2.5.8 Target Size)
+   ============================================================================ */
+@media (pointer: coarse) {
+  .bq-touch-target {
+    min-block-size: 44px;
+    min-inline-size: 44px;
+  }
+}
+
+/* ============================================================================
+   Native Modal Dialog Scroll Containment (Never lock overflow on html/body,
+   and never declare an unconditional display on dialog)
+   ============================================================================ */
+dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+/* ============================================================================
+   Popover Fallback & Top-Layer Discrete Transitions
+   ============================================================================ */
+[popover]:is(:popover-open, .\:popover-open) {
+  display: block;
+}
+
+@supports not selector(:popover-open) {
+  [popover]:not(.\:popover-open) {
+    display: none;
+  }
+}
+
+/* Top-layer toast & popover entry/exit transition:
+   transition-behavior: allow-discrete MUST remain separate AFTER transition */
+[popover],
+.bq-toast {
+  opacity: 0;
+  transition:
+    opacity 0.2s ease-out,
+    translate 0.2s ease-out,
+    display 0.2s ease-out,
+    overlay 0.2s ease-out;
+  transition-behavior: allow-discrete;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [popover],
+  .bq-toast {
+    translate: 0 0.5rem;
+  }
+}
+
+[popover]:is(:popover-open, .\:popover-open),
+.bq-toast[data-open="true"] {
+  opacity: 1;
+
+  @starting-style {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [popover]:is(:popover-open, .\:popover-open),
+  .bq-toast[data-open="true"] {
+    translate: 0 0;
+
+    @starting-style {
+      translate: 0 0.5rem;
+    }
+  }
+}
+
+/* ============================================================================
+   WCAG AAA High Contrast Mode (html[data-contrast="high"])
+   Pure #000000 surfaces, #FFFFFF ink (21:1), #FFE600 active/focus accents (16.9:1)
+   ============================================================================ */
+html[data-contrast="high"] {
+  color-scheme: dark;
+
+  --bq-navy: #000000;
+  --bq-navy-deep: #000000;
+  --bq-green: #FFE600;
+  --bq-yellow: #FFE600;
+  --bq-red: #FFE600;
+  --bq-sky: #FFE600;
+
+  --surface-app: #000000;
+  --surface-card: #000000;
+  --surface-muted: #000000;
+  --text-primary: #FFFFFF;
+  --text-secondary: #FFFFFF;
+  --border-subtle: #FFFFFF;
+  --focus-ring: #FFE600;
+}
+
+html[data-contrast="high"] :is(header, nav, [data-surface="dark"]) {
+  --focus-ring: #FFE600;
+}
+
+html[data-contrast="high"],
+html[data-contrast="high"] body,
+html[data-contrast="high"]
+  :is(header, nav, main, aside, footer, section, article, dialog, [popover]:not(.bg-transparent)) {
+  background-color: #000000;
+  color: #FFFFFF;
+}
+
+html[data-contrast="high"]
+  :is(
+    .bg-white,
+    .bg-slate-50,
+    .bg-slate-100,
+    .bg-slate-200,
+    .bg-slate-300,
+    .bg-slate-700,
+    .bg-slate-800,
+    .bg-slate-900,
+    .bg-slate-950,
+    .bg-neutral-50,
+    .bg-neutral-100,
+    .bg-sky-50,
+    .bg-sky-100,
+    .bg-emerald-50,
+    .bg-emerald-100,
+    .bg-green-50,
+    .bg-green-100,
+    .bg-amber-50,
+    .bg-amber-100,
+    .bg-yellow-50,
+    .bg-yellow-100,
+    .bg-red-50,
+    .bg-red-100,
+    .bg-\[\#0B2545\],
+    .bg-\[\#071930\],
+    [class*="bg-white/"],
+    [class*="bg-slate-"],
+    [class*="bg-red-50/"],
+    [class*="bg-amber-50/"],
+    [class*="bg-amber-500/"],
+    [class*="bg-emerald-500/"],
+    [class*="bg-[#0B2545]"],
+    [class*="bg-[#071930]"],
+    [class*="bg-[#DC2626]/"],
+    [class*="bg-[#FACC15]/"]
+  ) {
+  background-color: #000000;
+  color: #FFFFFF;
+}
+
+html[data-contrast="high"]
+  :is(
+    .text-slate-950,
+    .text-slate-900,
+    .text-slate-800,
+    .text-slate-700,
+    .text-slate-600,
+    .text-slate-500,
+    .text-slate-400,
+    .text-slate-300,
+    .text-slate-200,
+    .text-neutral-900,
+    .text-neutral-700,
+    .text-neutral-600,
+    .text-\[\#0B2545\],
+    .text-\[\#071930\],
+    [class*="text-slate-"]
+  ) {
+  color: #FFFFFF;
+}
+
+html[data-contrast="high"]
+  :is(
+    .text-\[\#15803D\],
+    .text-\[\#DC2626\],
+    .text-\[\#38BDF8\],
+    .text-\[\#FACC15\],
+    .text-\[\#FEF08A\],
+    .text-emerald-700,
+    .text-emerald-600,
+    .text-emerald-400,
+    .text-green-700,
+    .text-green-600,
+    .text-amber-700,
+    .text-amber-600,
+    .text-amber-400,
+    .text-yellow-400,
+    .text-yellow-300,
+    .text-red-700,
+    .text-red-600,
+    .text-red-400,
+    .text-sky-700,
+    .text-sky-400,
+    .text-sky-300
+  ) {
+  color: #FFE600;
+}
+
+/* Crisp 2px solid #FFFFFF structural borders on cards, controls, nav & overlays */
+html[data-contrast="high"]
+  :is(button, select, input, textarea, dialog, [popover]:not(.bg-transparent), article, main header, main li) {
+  border: 2px solid #FFFFFF;
+}
+
+html[data-contrast="high"] .border {
+  border: 2px solid #FFFFFF;
+}
+
+html[data-contrast="high"] .border-t {
+  border-top: 2px solid #FFFFFF;
+}
+
+html[data-contrast="high"] .border-b {
+  border-bottom: 2px solid #FFFFFF;
+}
+
+html[data-contrast="high"] .border-l {
+  border-left: 2px solid #FFFFFF;
+}
+
+html[data-contrast="high"] .border-r {
+  border-right: 2px solid #FFFFFF;
+}
+
+html[data-contrast="high"] :is([class*="border-slate-"], [class*="border-white"], [class*="border-[#"]) {
+  border-color: #FFFFFF;
+}
+
+html[data-contrast="high"] header {
+  border-bottom: 2px solid #FFFFFF;
+}
+
+html[data-contrast="high"] nav {
+  border-top: 2px solid #FFFFFF;
+}
+
+html[data-contrast="high"] :is(.shadow-sm, .shadow, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl) {
+  box-shadow: none;
+}
+
+html[data-contrast="high"] :is(select, option) {
+  background-color: #000000;
+  color: #FFFFFF;
+}
+
+html[data-contrast="high"] a:any-link {
+  color: #FFE600;
+  text-decoration: underline;
+}
+
+html[data-contrast="high"] .visually-hidden:focus-within {
+  background-color: #FFE600;
+  color: #000000;
+  border: 2px solid #000000;
+  text-decoration: none;
+}
+
+html[data-contrast="high"] dialog::backdrop {
+  background-color: rgb(0 0 0 / 0.85);
+}
+
+/* High-visibility accent badges, live indicators & unread counters */
+html[data-contrast="high"]
+  :is(
+    .bg-\[\#DC2626\],
+    .bg-\[\#15803D\],
+    .bg-\[\#FACC15\],
+    .bg-\[\#38BDF8\],
+    .bg-red-600,
+    .bg-red-500,
+    .bg-emerald-500,
+    .bg-emerald-400,
+    .bg-green-600,
+    .bg-green-500,
+    .bg-amber-500,
+    .bg-amber-400,
+    .bg-yellow-400
+  ) {
+  background-color: #FFE600;
+  color: #000000;
+  border-color: #FFE600;
+}
+
+html[data-contrast="high"]
+  :is(
+    .bg-\[\#DC2626\],
+    .bg-\[\#15803D\],
+    .bg-\[\#FACC15\],
+    .bg-\[\#38BDF8\],
+    .bg-red-600,
+    .bg-red-500,
+    .bg-emerald-500,
+    .bg-emerald-400,
+    .bg-green-600,
+    .bg-green-500,
+    .bg-amber-500,
+    .bg-amber-400,
+    .bg-yellow-400
+  )
+  :is(span, p, svg, strong, small) {
+  color: #000000;
+}
+
+/* Active, selected, pressed & checked control states (#000000 ink on #FFE600 fill = 16.9:1) */
+html[data-contrast="high"]
+  :is(
+    [aria-pressed="true"],
+    [aria-selected="true"],
+    [aria-current="page"],
+    [role="switch"][aria-checked="true"],
+    button:not(:disabled):hover,
+    a:any-link:hover
+  ) {
+  background-color: #FFE600;
+  color: #000000;
+  border-color: #FFE600;
+}
+
+html[data-contrast="high"]
+  :is(
+    [aria-pressed="true"],
+    [aria-selected="true"],
+    [aria-current="page"],
+    [role="switch"][aria-checked="true"],
+    button:not(:disabled):hover,
+    a:any-link:hover
+  )
+  :is(span, p, svg, strong, small) {
+  background-color: transparent;
+  color: #000000;
+}
+
+html[data-contrast="high"] button.bg-\[\#FACC15\]:not(:disabled):hover {
+  background-color: #FFFFFF;
+  color: #000000;
+  border-color: #FFFFFF;
+}
+
+/* Keep rounded switch thumb & active indicator dots legible in high-contrast states */
+html[data-contrast="high"] [role="switch"] > span.rounded-full {
+  background-color: #FFFFFF;
+}
+
+html[data-contrast="high"] [role="switch"][aria-checked="true"] > span.rounded-full,
+html[data-contrast="high"] [role="switch"]:hover > span.rounded-full,
+html[data-contrast="high"] [aria-pressed="true"] > span.rounded-full {
+  background-color: #000000;
+  border-color: #000000;
+}
+
+/* Keep overhanging counter badges (e.g., Bell unread count) WCAG AAA even on hover */
+html[data-contrast="high"] .bq-counter-badge,
+html[data-contrast="high"] button:not(:disabled):hover .bq-counter-badge,
+html[data-contrast="high"] button:not(:disabled):hover > span.bg-\[\#DC2626\] {
+  background-color: #000000 !important;
+  color: #FFE600 !important;
+  border: 2px solid #FFE600 !important;
+}
+
+/* Explicit unlayered High Contrast focus rings (never clipped inside BottomNav) */
+html[data-contrast="high"] :where(a:any-link, button, select, input, textarea, [tabindex]):focus-visible {
+  outline: 3px solid #FFE600;
+  outline-offset: 2px;
+}
+
+html[data-contrast="high"] nav button:focus-visible {
+  outline-offset: -3px;
+}
+
+html[data-contrast="high"] nav button[aria-current="page"]:focus-visible {
+  outline: 3px solid #000000;
+  outline-offset: -3px;
+}
+
+/* ============================================================================
+   Reduced Motion Preference (WCAG 2.3.3 — keep final visible state intact)
+   ============================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  [popover],
+  .bq-toast,
+  dialog,
+  dialog::backdrop {
+    transition: none;
+    animation: none;
+    translate: none;
+  }
+
+  .animate-pulse,
+  .animate-bounce,
+  .animate-ping,
+  .animate-spin {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto;
+  }
+}
+
+/* ============================================================================
+   Windows Forced Colors Mode Fallback (System Color Keywords)
+   ============================================================================ */
+@media (forced-colors: active) {
+  :root {
+    --surface-app: Canvas;
+    --surface-card: Canvas;
+    --surface-muted: Canvas;
+    --text-primary: CanvasText;
+    --text-secondary: CanvasText;
+    --border-subtle: CanvasText;
+    --focus-ring: Highlight;
+  }
+
+  :where(a:any-link, button, select, input, textarea, [tabindex]):focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  dialog,
+  [popover]:not(.bg-transparent),
+  [popover] article {
+    border: 2px solid CanvasText;
+    background-color: Canvas;
+    color: CanvasText;
+  }
+
+  button,
+  select,
+  input,
+  textarea {
+    border: 1px solid ButtonText;
+  }
+
+  :is(
+    [aria-pressed="true"],
+    [aria-selected="true"],
+    [aria-current="page"],
+    [role="switch"][aria-checked="true"]
+  ) {
+    border: 2px solid Highlight;
+    outline: 1px solid Highlight;
+  }
+
+  [role="switch"] > span.rounded-full {
+    border: 2px solid ButtonText;
+  }
 }

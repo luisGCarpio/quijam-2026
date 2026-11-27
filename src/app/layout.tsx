@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -13,17 +13,28 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BQ360",
-  description: "BQ360",
+  title: "BQ360 — Barranquilla 2034",
+  description:
+    "Plataforma ciudadana inteligente de Barranquilla 2034 y legado post-Mundial: monitoreo de aforo en vivo, rutas alternativas seguras ante arroyos, clima, servicios inclusivos y economía local.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#0B2545",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable}`}
     >
-      <body className="min-h-full bg-white text-neutral-900">{children}</body>
+      <body className="min-h-dvh bg-slate-100 text-slate-900 antialiased font-sans">
+        {children}
+      </body>
     </html>
   );
 }
